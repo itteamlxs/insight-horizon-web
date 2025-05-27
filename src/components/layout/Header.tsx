@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,12 @@ import { LogOut, Shield } from 'lucide-react';
 const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [companyLogo, setCompanyLogo] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const logo = localStorage.getItem('companyLogo');
+    setCompanyLogo(logo);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -19,7 +24,15 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
-            <Shield className="h-8 w-8 text-blue-400" />
+            {companyLogo ? (
+              <img 
+                src={companyLogo} 
+                alt="Company Logo" 
+                className="h-8 w-auto max-w-32 object-contain"
+              />
+            ) : (
+              <Shield className="h-8 w-8 text-blue-400" />
+            )}
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
               TechCorp Solutions
             </span>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit, Trash2, FileText, Settings, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit, Trash2, FileText, Settings, Eye, EyeOff, Upload, Image } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Post } from '@/types';
 
@@ -24,6 +23,10 @@ const AdminDashboard = () => {
   
   const [isCreating, setIsCreating] = useState(false);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(
+    localStorage.getItem('companyLogo') || null
+  );
   const [newPost, setNewPost] = useState({
     title: '',
     content: '',
@@ -43,6 +46,57 @@ const AdminDashboard = () => {
   }
 
   const allPosts = getAllPosts();
+
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: "File too large",
+          description: "Please select a file smaller than 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setLogoPreview(result);
+        localStorage.setItem('companyLogo', result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveLogo = () => {
+    if (logoPreview) {
+      toast({
+        title: "Success",
+        description: "Logo updated successfully",
+      });
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setLogoFile(null);
+    setLogoPreview(null);
+    localStorage.removeItem('companyLogo');
+    toast({
+      title: "Success",
+      description: "Logo removed successfully",
+    });
+  };
 
   const handleCreatePost = () => {
     if (!newPost.title.trim() || !newPost.content.trim()) {
@@ -265,7 +319,53 @@ const AdminDashboard = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="settings">
+          <TabsContent value="settings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Company Logo</CardTitle>
+                <CardDescription>Upload and manage your company logo</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex flex-col space-y-4">
+                  {logoPreview && (
+                    <div className="flex items-center space-x-4">
+                      <img 
+                        src={logoPreview} 
+                        alt="Company Logo" 
+                        className="h-16 w-auto max-w-32 object-contain border rounded"
+                      />
+                      <Button 
+                        variant="outline" 
+                        onClick={handleRemoveLogo}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        Remove Logo
+                      </Button>
+                    </div>
+                  )}
+                  <div>
+                    <Label htmlFor="logo">Upload Logo</Label>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <Input
+                        id="logo"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLogoUpload}
+                        className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      />
+                      <Button onClick={handleSaveLogo} disabled={!logoPreview}>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Save
+                      </Button>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Recommended size: 200x80px. Max file size: 5MB. Supported formats: JPG, PNG, SVG
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Company Settings</CardTitle>
