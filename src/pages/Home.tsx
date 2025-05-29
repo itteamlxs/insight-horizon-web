@@ -5,11 +5,99 @@ import Footer from '@/components/layout/Footer';
 import PublicPostCard from '@/components/PublicPostCard';
 import { usePosts } from '@/hooks/usePosts';
 import { Button } from '@/components/ui/button';
-import { Shield, Server, Lock, Zap } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Shield, Server, Lock, Zap, Check } from 'lucide-react';
 
 const Home = () => {
   const { getPublicPosts, loading } = usePosts();
   const publicPosts = getPublicPosts();
+
+  // Get pricing plans from localStorage
+  const [pricingPlans, setPricingPlans] = React.useState([
+    {
+      id: '1',
+      name: 'Starter',
+      price: 99,
+      description: 'Perfect for small businesses',
+      features: ['5 GB Storage', '24/7 Support', 'Basic Security', 'Email Integration'],
+      highlighted: false
+    },
+    {
+      id: '2',
+      name: 'Professional',
+      price: 299,
+      description: 'Ideal for growing companies',
+      features: ['50 GB Storage', 'Priority Support', 'Advanced Security', 'API Access', 'Custom Integrations'],
+      highlighted: true
+    },
+    {
+      id: '3',
+      name: 'Enterprise',
+      price: 699,
+      description: 'For large organizations',
+      features: ['Unlimited Storage', 'Dedicated Support', 'Enterprise Security', 'Full API Access', 'Custom Development', 'SLA Guarantee'],
+      highlighted: false
+    }
+  ]);
+
+  // Get gallery items from localStorage
+  const [galleryItems, setGalleryItems] = React.useState([
+    {
+      id: '1',
+      title: 'Data Center Infrastructure',
+      description: 'State-of-the-art server facilities',
+      imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80',
+      category: 'Infrastructure'
+    },
+    {
+      id: '2',
+      title: 'Cloud Security Solutions',
+      description: 'Advanced cybersecurity implementations',
+      imageUrl: 'https://images.unsplash.com/photo-1563206767-5b18f218e8de?auto=format&fit=crop&w=800&q=80',
+      category: 'Security'
+    },
+    {
+      id: '3',
+      title: 'Network Operations Center',
+      description: '24/7 monitoring and support',
+      imageUrl: 'https://images.unsplash.com/photo-1551808525-51a94da548ce?auto=format&fit=crop&w=800&q=80',
+      category: 'Operations'
+    },
+    {
+      id: '4',
+      title: 'Mobile Application Development',
+      description: 'Custom mobile solutions',
+      imageUrl: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=800&q=80',
+      category: 'Development'
+    },
+    {
+      id: '5',
+      title: 'AI & Machine Learning',
+      description: 'Cutting-edge AI implementations',
+      imageUrl: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80',
+      category: 'AI'
+    },
+    {
+      id: '6',
+      title: 'Enterprise Solutions',
+      description: 'Scalable business applications',
+      imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
+      category: 'Enterprise'
+    }
+  ]);
+
+  React.useEffect(() => {
+    const savedPlans = localStorage.getItem('pricingPlans');
+    if (savedPlans) {
+      setPricingPlans(JSON.parse(savedPlans));
+    }
+
+    const savedGallery = localStorage.getItem('galleryItems');
+    if (savedGallery) {
+      setGalleryItems(JSON.parse(savedGallery));
+    }
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col dark:bg-gray-900">
@@ -82,6 +170,95 @@ const Home = () => {
               <h3 className="text-xl font-semibold mb-2 dark:text-white">Lightning Fast</h3>
               <p className="text-gray-600 dark:text-gray-300">Optimized performance with global CDN</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-16 dark:bg-gray-900">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Choose Your Plan
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Select the perfect plan for your business needs. All plans include our core features with varying levels of support and resources.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {pricingPlans.map((plan) => (
+              <Card key={plan.id} className={`relative ${plan.highlighted ? 'border-blue-500 border-2 dark:border-blue-400' : 'dark:bg-gray-800 dark:border-gray-700'}`}>
+                {plan.highlighted && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">
+                      Most Popular
+                    </span>
+                  </div>
+                )}
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl font-bold dark:text-white">{plan.name}</CardTitle>
+                  <CardDescription className="dark:text-gray-300">{plan.description}</CardDescription>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold text-gray-900 dark:text-white">${plan.price}</span>
+                    <span className="text-gray-600 dark:text-gray-400">/month</span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3 mb-6">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-center space-x-2">
+                        <Check className="h-5 w-5 text-green-500" />
+                        <span className="dark:text-gray-300">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button 
+                    className={`w-full ${plan.highlighted ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                    variant={plan.highlighted ? 'default' : 'outline'}
+                  >
+                    Get Started
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Gallery Section */}
+      <section className="py-16 bg-gray-50 dark:bg-gray-800">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Our Work Gallery
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Explore our portfolio of successful projects and innovative solutions across various technology domains.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {galleryItems.slice(0, 6).map((item) => (
+              <Card key={item.id} className="group overflow-hidden hover:shadow-lg transition-shadow dark:bg-gray-900 dark:border-gray-700">
+                <div className="aspect-video overflow-hidden">
+                  <img
+                    src={item.imageUrl}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{item.title}</h3>
+                    <Badge variant="secondary" className="text-xs">
+                      {item.category}
+                    </Badge>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm">{item.description}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
