@@ -74,15 +74,25 @@ const AdminDashboard = () => {
     }
   ]);
 
-  // Transparency Documents State
-  const [transparencyDocs, setTransparencyDocs] = useState([]);
+  // Transparency Documents State - organized by category
+  const [transparencyDocs, setTransparencyDocs] = useState({});
   const [newTransparencyDoc, setNewTransparencyDoc] = useState({
     title: '',
     description: '',
     fileName: '',
     fileUrl: '',
-    publishDate: new Date().toISOString().split('T')[0]
+    publishDate: new Date().toISOString().split('T')[0],
+    category: ''
   });
+
+  const transparencyCategories = [
+    { id: 'security', name: 'Security Practices' },
+    { id: 'financial', name: 'Financial Reports' },
+    { id: 'governance', name: 'Governance' },
+    { id: 'environmental', name: 'Environmental Impact' },
+    { id: 'privacy', name: 'Data Privacy' },
+    { id: 'ethics', name: 'Ethics & Compliance' }
+  ];
 
   const [editingPlan, setEditingPlan] = useState<any>(null);
   const [editingGalleryItem, setEditingGalleryItem] = useState<any>(null);
@@ -303,10 +313,10 @@ const AdminDashboard = () => {
   };
 
   const handleAddTransparencyDoc = () => {
-    if (!newTransparencyDoc.title.trim() || !newTransparencyDoc.description.trim() || !newTransparencyDoc.fileUrl) {
+    if (!newTransparencyDoc.title.trim() || !newTransparencyDoc.description.trim() || !newTransparencyDoc.fileUrl || !newTransparencyDoc.category) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields and upload a PDF",
+        description: "Please fill in all required fields, select a category, and upload a PDF",
         variant: "destructive",
       });
       return;
@@ -317,7 +327,12 @@ const AdminDashboard = () => {
       id: Date.now().toString()
     };
 
-    const updatedDocs = [...transparencyDocs, newDoc];
+    const updatedDocs = { ...transparencyDocs };
+    if (!updatedDocs[newTransparencyDoc.category]) {
+      updatedDocs[newTransparencyDoc.category] = [];
+    }
+    updatedDocs[newTransparencyDoc.category].push(newDoc);
+
     setTransparencyDocs(updatedDocs);
     localStorage.setItem('transparencyDocs', JSON.stringify(updatedDocs));
 
@@ -326,7 +341,8 @@ const AdminDashboard = () => {
       description: '',
       fileName: '',
       fileUrl: '',
-      publishDate: new Date().toISOString().split('T')[0]
+      publishDate: new Date().toISOString().split('T')[0],
+      category: ''
     });
 
     toast({
@@ -335,8 +351,14 @@ const AdminDashboard = () => {
     });
   };
 
-  const handleDeleteTransparencyDoc = (id: string) => {
-    const updatedDocs = transparencyDocs.filter(doc => doc.id !== id);
+  const handleDeleteTransparencyDoc = (categoryId: string, docId: string) => {
+    const updatedDocs = { ...transparencyDocs };
+    updatedDocs[categoryId] = updatedDocs[categoryId].filter((doc: any) => doc.id !== docId);
+    
+    if (updatedDocs[categoryId].length === 0) {
+      delete updatedDocs[categoryId];
+    }
+    
     setTransparencyDocs(updatedDocs);
     localStorage.setItem('transparencyDocs', JSON.stringify(updatedDocs));
     toast({
@@ -640,7 +662,7 @@ const AdminDashboard = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Transparency Documents</CardTitle>
-                <CardDescription>Upload and manage transparency reports, policies, and compliance documents</CardDescription>
+                <CardDescription>Upload and manage transparency reports, policies, and compliance documents by category</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Upload New Document */}
@@ -660,14 +682,30 @@ const AdminDashboard = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="publishDate">Publish Date</Label>
-                        <Input
-                          id="publishDate"
-                          type="date"
-                          value={newTransparencyDoc.publishDate}
-                          onChange={(e) => setNewTransparencyDoc({ ...newTransparencyDoc, publishDate: e.target.value })}
-                        />
+                        <Label htmlFor="category">Category</Label>
+                        <Select value={newTransparencyDoc.category} onValueChange={(value) => setNewTransparencyDoc({ ...newTransparencyDoc, category: value })}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {transparencyCategories.map((category) => (
+                              <SelectItem key={category.id} value={category.id}>
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="publishDate">Publish Date</Label>
+                      <Input
+                        id="publishDate"
+                        type="date"
+                        value={newTransparencyDoc.publishDate}
+                        onChange={(e) => setNewTransparencyDoc({ ...newTransparencyDoc, publishDate: e.target.value })}
+                      />
                     </div>
                     
                     <div>
@@ -707,58 +745,69 @@ const AdminDashboard = () => {
                   </CardContent>
                 </Card>
 
-                {/* Documents List */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Published Documents</h3>
-                  {transparencyDocs.length === 0 ? (
-                    <Card>
-                      <CardContent className="p-8 text-center">
-                        <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-500">No transparency documents uploaded yet.</p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    transparencyDocs.map((doc: any) => (
-                      <Card key={doc.id}>
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-start space-x-4">
-                              <FileText className="h-8 w-8 text-red-600 flex-shrink-0 mt-1" />
-                              <div>
-                                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                  {doc.title}
-                                </h4>
-                                <p className="text-gray-600 dark:text-gray-300 mb-2">
-                                  {doc.description}
-                                </p>
-                                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                                  <span>Published: {new Date(doc.publishDate).toLocaleDateString()}</span>
-                                  <span>File: {doc.fileName}</span>
+                {/* Documents List by Category */}
+                <div className="space-y-6">
+                  <h3 className="text-lg font-semibold">Published Documents by Category</h3>
+                  {transparencyCategories.map((category) => {
+                    const categoryDocs = transparencyDocs[category.id] || [];
+                    
+                    return (
+                      <Card key={category.id}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{category.name}</CardTitle>
+                          <CardDescription>
+                            {categoryDocs.length} document{categoryDocs.length !== 1 ? 's' : ''} published
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          {categoryDocs.length === 0 ? (
+                            <p className="text-gray-500 dark:text-gray-400 italic text-center py-4">
+                              No documents uploaded for this category yet.
+                            </p>
+                          ) : (
+                            <div className="space-y-3">
+                              {categoryDocs.map((doc: any) => (
+                                <div key={doc.id} className="flex items-start justify-between p-4 border rounded-lg">
+                                  <div className="flex items-start space-x-3">
+                                    <FileText className="h-6 w-6 text-red-600 flex-shrink-0 mt-1" />
+                                    <div>
+                                      <h4 className="font-semibold text-gray-900 dark:text-white">
+                                        {doc.title}
+                                      </h4>
+                                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-1">
+                                        {doc.description}
+                                      </p>
+                                      <div className="flex items-center space-x-4 text-xs text-gray-500">
+                                        <span>Published: {new Date(doc.publishDate).toLocaleDateString()}</span>
+                                        <span>File: {doc.fileName}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => downloadDocument(doc)}
+                                    >
+                                      <Download className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleDeleteTransparencyDoc(category.id, doc.id)}
+                                      className="text-red-600 hover:text-red-700"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
                                 </div>
-                              </div>
+                              ))}
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => downloadDocument(doc)}
-                              >
-                                <Download className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDeleteTransparencyDoc(doc.id)}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
+                          )}
                         </CardContent>
                       </Card>
-                    ))
-                  )}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
