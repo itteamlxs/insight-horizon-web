@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { LogOut, Shield } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -20,7 +22,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-slate-900 text-white shadow-lg">
+    <header className="bg-slate-900 dark:bg-slate-950 text-white shadow-lg">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
@@ -45,6 +47,12 @@ const Header = () => {
             <Link to="/about" className="hover:text-blue-400 transition-colors">
               About
             </Link>
+            <Link to="/pricing" className="hover:text-blue-400 transition-colors">
+              Pricing
+            </Link>
+            <Link to="/gallery" className="hover:text-blue-400 transition-colors">
+              Gallery
+            </Link>
             <Link to="/transparency" className="hover:text-blue-400 transition-colors">
               Transparency
             </Link>
@@ -56,6 +64,7 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center space-x-4">
+            <ThemeToggle />
             {user ? (
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-300">

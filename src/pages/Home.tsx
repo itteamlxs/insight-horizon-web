@@ -12,11 +12,11 @@ const Home = () => {
   const publicPosts = getPublicPosts();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col dark:bg-gray-900">
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white py-20">
+      <section className="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-gray-900 dark:via-blue-900 dark:to-gray-900 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
@@ -39,61 +39,61 @@ const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 dark:bg-gray-800">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Why Choose TechCorp?
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               We provide cutting-edge technology solutions with an unwavering focus on security and reliability.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6">
-              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-8 w-8 text-blue-600" />
+              <div className="bg-blue-100 dark:bg-blue-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Shield className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Enterprise Security</h3>
-              <p className="text-gray-600">Military-grade encryption and security protocols</p>
+              <h3 className="text-xl font-semibold mb-2 dark:text-white">Enterprise Security</h3>
+              <p className="text-gray-600 dark:text-gray-300">Military-grade encryption and security protocols</p>
             </div>
             
             <div className="text-center p-6">
-              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Server className="h-8 w-8 text-green-600" />
+              <div className="bg-green-100 dark:bg-green-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Server className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Scalable Infrastructure</h3>
-              <p className="text-gray-600">Auto-scaling solutions that grow with your business</p>
+              <h3 className="text-xl font-semibold mb-2 dark:text-white">Scalable Infrastructure</h3>
+              <p className="text-gray-600 dark:text-gray-300">Auto-scaling solutions that grow with your business</p>
             </div>
             
             <div className="text-center p-6">
-              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lock className="h-8 w-8 text-purple-600" />
+              <div className="bg-purple-100 dark:bg-purple-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lock className="h-8 w-8 text-purple-600 dark:text-purple-400" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Data Protection</h3>
-              <p className="text-gray-600">Advanced backup and disaster recovery systems</p>
+              <h3 className="text-xl font-semibold mb-2 dark:text-white">Data Protection</h3>
+              <p className="text-gray-600 dark:text-gray-300">Advanced backup and disaster recovery systems</p>
             </div>
             
             <div className="text-center p-6">
-              <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-8 w-8 text-orange-600" />
+              <div className="bg-orange-100 dark:bg-orange-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Zap className="h-8 w-8 text-orange-600 dark:text-orange-400" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Lightning Fast</h3>
-              <p className="text-gray-600">Optimized performance with global CDN</p>
+              <h3 className="text-xl font-semibold mb-2 dark:text-white">Lightning Fast</h3>
+              <p className="text-gray-600 dark:text-gray-300">Optimized performance with global CDN</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Latest News Section */}
-      <section className="py-16">
+      <section className="py-16 dark:bg-gray-900">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Latest News & Updates
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-600 dark:text-gray-300">
               Stay informed with our latest press releases and company announcements
             </p>
           </div>
@@ -101,7 +101,7 @@ const Home = () => {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map(i => (
-                <div key={i} className="bg-gray-200 rounded-lg h-64 animate-pulse"></div>
+                <div key={i} className="bg-gray-200 dark:bg-gray-700 rounded-lg h-64 animate-pulse"></div>
               ))}
             </div>
           ) : (
@@ -114,7 +114,7 @@ const Home = () => {
           
           {publicPosts.length === 0 && !loading && (
             <div className="text-center py-12">
-              <p className="text-gray-600">No public posts available at this time.</p>
+              <p className="text-gray-600 dark:text-gray-400">No public posts available at this time.</p>
             </div>
           )}
         </div>

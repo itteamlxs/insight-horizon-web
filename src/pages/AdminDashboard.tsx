@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit, Trash2, FileText, Settings, Eye, EyeOff, Upload, Image } from 'lucide-react';
+import { Plus, Edit, Trash2, FileText, Settings, Eye, EyeOff, Upload, Image, DollarSign, ImageIcon } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Post } from '@/types';
 
@@ -35,9 +35,63 @@ const AdminDashboard = () => {
     authorId: '1'
   });
 
+  // Pricing Plans State
+  const [pricingPlans, setPricingPlans] = useState([
+    {
+      id: '1',
+      name: 'Starter',
+      price: 99,
+      description: 'Perfect for small businesses',
+      features: ['5 GB Storage', '24/7 Support', 'Basic Security', 'Email Integration'],
+      highlighted: false
+    },
+    {
+      id: '2',
+      name: 'Professional',
+      price: 299,
+      description: 'Ideal for growing companies',
+      features: ['50 GB Storage', 'Priority Support', 'Advanced Security', 'API Access', 'Custom Integrations'],
+      highlighted: true
+    },
+    {
+      id: '3',
+      name: 'Enterprise',
+      price: 699,
+      description: 'For large organizations',
+      features: ['Unlimited Storage', 'Dedicated Support', 'Enterprise Security', 'Full API Access', 'Custom Development', 'SLA Guarantee'],
+      highlighted: false
+    }
+  ]);
+
+  // Gallery Items State
+  const [galleryItems, setGalleryItems] = useState([
+    {
+      id: '1',
+      title: 'Data Center Infrastructure',
+      description: 'State-of-the-art server facilities',
+      imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80',
+      category: 'Infrastructure'
+    }
+  ]);
+
+  const [editingPlan, setEditingPlan] = useState<any>(null);
+  const [editingGalleryItem, setEditingGalleryItem] = useState<any>(null);
+
   React.useEffect(() => {
     if (!user) {
       navigate('/login');
+    }
+    
+    // Load pricing plans from localStorage
+    const savedPlans = localStorage.getItem('pricingPlans');
+    if (savedPlans) {
+      setPricingPlans(JSON.parse(savedPlans));
+    }
+    
+    // Load gallery items from localStorage
+    const savedGallery = localStorage.getItem('galleryItems');
+    if (savedGallery) {
+      setGalleryItems(JSON.parse(savedGallery));
     }
   }, [user, navigate]);
 
@@ -152,21 +206,74 @@ const AdminDashboard = () => {
     });
   };
 
+  // Pricing Plan Handlers
+  const handleUpdatePlan = (plan: any) => {
+    const updatedPlans = pricingPlans.map(p => p.id === plan.id ? plan : p);
+    setPricingPlans(updatedPlans);
+    localStorage.setItem('pricingPlans', JSON.stringify(updatedPlans));
+    setEditingPlan(null);
+    toast({
+      title: "Success",
+      description: "Pricing plan updated successfully",
+    });
+  };
+
+  // Gallery Item Handlers
+  const handleAddGalleryItem = (item: any) => {
+    const newItem = { ...item, id: Date.now().toString() };
+    const updatedItems = [...galleryItems, newItem];
+    setGalleryItems(updatedItems);
+    localStorage.setItem('galleryItems', JSON.stringify(updatedItems));
+    toast({
+      title: "Success",
+      description: "Gallery item added successfully",
+    });
+  };
+
+  const handleUpdateGalleryItem = (item: any) => {
+    const updatedItems = galleryItems.map(i => i.id === item.id ? item : i);
+    setGalleryItems(updatedItems);
+    localStorage.setItem('galleryItems', JSON.stringify(updatedItems));
+    setEditingGalleryItem(null);
+    toast({
+      title: "Success",
+      description: "Gallery item updated successfully",
+    });
+  };
+
+  const handleDeleteGalleryItem = (id: string) => {
+    const updatedItems = galleryItems.filter(i => i.id !== id);
+    setGalleryItems(updatedItems);
+    localStorage.setItem('galleryItems', JSON.stringify(updatedItems));
+    toast({
+      title: "Success",
+      description: "Gallery item deleted successfully",
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
       
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage your content and company settings</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Admin Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-300">Manage your content and company settings</p>
         </div>
 
         <Tabs defaultValue="posts" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
             <TabsTrigger value="posts" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              Content Management
+              Content
+            </TabsTrigger>
+            <TabsTrigger value="pricing" className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Pricing
+            </TabsTrigger>
+            <TabsTrigger value="gallery" className="flex items-center gap-2">
+              <ImageIcon className="h-4 w-4" />
+              Gallery
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -317,6 +424,111 @@ const AdminDashboard = () => {
                 </Card>
               ))}
             </div>
+          </TabsContent>
+
+          <TabsContent value="pricing" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Pricing Plans</CardTitle>
+                <CardDescription>Manage your pricing plans and features</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {pricingPlans.map((plan) => (
+                    <Card key={plan.id}>
+                      <CardContent className="p-4">
+                        {editingPlan?.id === plan.id ? (
+                          <div className="space-y-4">
+                            <Input
+                              value={editingPlan.name}
+                              onChange={(e) => setEditingPlan({ ...editingPlan, name: e.target.value })}
+                              placeholder="Plan name"
+                            />
+                            <Input
+                              type="number"
+                              value={editingPlan.price}
+                              onChange={(e) => setEditingPlan({ ...editingPlan, price: parseInt(e.target.value) })}
+                              placeholder="Price"
+                            />
+                            <Input
+                              value={editingPlan.description}
+                              onChange={(e) => setEditingPlan({ ...editingPlan, description: e.target.value })}
+                              placeholder="Description"
+                            />
+                            <div className="flex gap-2">
+                              <Button onClick={() => handleUpdatePlan(editingPlan)}>Save</Button>
+                              <Button variant="outline" onClick={() => setEditingPlan(null)}>Cancel</Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h3 className="text-lg font-semibold">{plan.name}</h3>
+                              <p className="text-gray-600">${plan.price}/month - {plan.description}</p>
+                            </div>
+                            <Button
+                              variant="outline"
+                              onClick={() => setEditingPlan(plan)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="gallery" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Gallery Management</CardTitle>
+                <CardDescription>Manage your project gallery and portfolio items</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {galleryItems.map((item) => (
+                    <Card key={item.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <img
+                              src={item.imageUrl}
+                              alt={item.title}
+                              className="w-16 h-16 object-cover rounded"
+                            />
+                            <div>
+                              <h3 className="text-lg font-semibold">{item.title}</h3>
+                              <p className="text-gray-600">{item.description}</p>
+                              <Badge variant="secondary">{item.category}</Badge>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setEditingGalleryItem(item)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDeleteGalleryItem(item.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
