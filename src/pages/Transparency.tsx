@@ -1,10 +1,9 @@
-
 import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Shield, FileText, Users, Globe, FilePdf, Download } from 'lucide-react';
+import { Shield, FileText, Users, Globe, Download } from 'lucide-react';
 
 const Transparency = () => {
   // Get transparency documents from localStorage
@@ -52,7 +51,7 @@ const Transparency = () => {
                       <CardContent className="p-6">
                         <div className="flex items-start space-x-4">
                           <div className="flex-shrink-0">
-                            <FilePdf className="h-8 w-8 text-red-600" />
+                            <FileText className="h-8 w-8 text-red-600" />
                           </div>
                           <div className="flex-1">
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">

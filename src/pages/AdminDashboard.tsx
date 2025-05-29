@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit, Trash2, FileText, Settings, Eye, EyeOff, Upload, Image, DollarSign, ImageIcon, FilePdf, Download } from 'lucide-react';
+import { Plus, Edit, Trash2, FileText, Settings, Eye, EyeOff, Upload, Image, DollarSign, ImageIcon, Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Post } from '@/types';
 
@@ -377,7 +377,7 @@ const AdminDashboard = () => {
               Gallery
             </TabsTrigger>
             <TabsTrigger value="transparency" className="flex items-center gap-2">
-              <FilePdf className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               Transparency
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
@@ -713,7 +713,7 @@ const AdminDashboard = () => {
                   {transparencyDocs.length === 0 ? (
                     <Card>
                       <CardContent className="p-8 text-center">
-                        <FilePdf className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                         <p className="text-gray-500">No transparency documents uploaded yet.</p>
                       </CardContent>
                     </Card>
@@ -723,7 +723,7 @@ const AdminDashboard = () => {
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between">
                             <div className="flex items-start space-x-4">
-                              <FilePdf className="h-8 w-8 text-red-600 flex-shrink-0 mt-1" />
+                              <FileText className="h-8 w-8 text-red-600 flex-shrink-0 mt-1" />
                               <div>
                                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                                   {doc.title}
