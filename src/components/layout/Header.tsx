@@ -10,10 +10,17 @@ const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [companyLogo, setCompanyLogo] = React.useState<string | null>(null);
+  const [companyName, setCompanyName] = React.useState<string>('TechCorp Solutions');
 
   React.useEffect(() => {
     const logo = localStorage.getItem('companyLogo');
     setCompanyLogo(logo);
+    
+    const settings = localStorage.getItem('companySettings');
+    if (settings) {
+      const parsedSettings = JSON.parse(settings);
+      setCompanyName(parsedSettings.companyName || 'TechCorp Solutions');
+    }
   }, []);
 
   const handleLogout = () => {
@@ -36,7 +43,7 @@ const Header = () => {
               <Shield className="h-8 w-8 text-blue-400" />
             )}
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              TechCorp Solutions
+              {companyName}
             </span>
           </Link>
           

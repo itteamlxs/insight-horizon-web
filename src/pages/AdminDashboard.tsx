@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit, Trash2, FileText, Settings, Eye, EyeOff, Upload, Image, DollarSign, ImageIcon, Download } from 'lucide-react';
+import { Plus, Edit, Trash2, FileText, Settings, Eye, EyeOff, Upload, Image, DollarSign, ImageIcon, Download, Users } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Post } from '@/types';
 
@@ -34,6 +34,30 @@ const AdminDashboard = () => {
     isPublic: true,
     authorId: '1'
   });
+
+  // Company Settings State
+  const [companySettings, setCompanySettings] = useState({
+    companyName: 'TechCorp Solutions',
+    description: 'Leading technology and infrastructure solutions provider',
+    email: 'contact@techcorp.com',
+    phone: '+1 (555) 123-4567',
+    address: ''
+  });
+
+  // User Management State
+  const [adminUsers, setAdminUsers] = useState([
+    {
+      id: '1',
+      email: 'admin@techcorp.com',
+      createdAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString()
+    }
+  ]);
+  const [newAdminUser, setNewAdminUser] = useState({
+    email: '',
+    password: ''
+  });
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
 
   // Pricing Plans State
   const [pricingPlans, setPricingPlans] = useState([
@@ -100,6 +124,18 @@ const AdminDashboard = () => {
   React.useEffect(() => {
     if (!user) {
       navigate('/login');
+    }
+    
+    // Load company settings from localStorage
+    const savedSettings = localStorage.getItem('companySettings');
+    if (savedSettings) {
+      setCompanySettings(JSON.parse(savedSettings));
+    }
+    
+    // Load admin users from localStorage
+    const savedUsers = localStorage.getItem('adminUsers');
+    if (savedUsers) {
+      setAdminUsers(JSON.parse(savedUsers));
     }
     
     // Load pricing plans from localStorage
@@ -374,6 +410,75 @@ const AdminDashboard = () => {
     link.click();
   };
 
+  // Company Settings Handlers
+  const handleSaveSettings = () => {
+    localStorage.setItem('companySettings', JSON.stringify(companySettings));
+    toast({
+      title: "Success",
+      description: "Company settings saved successfully",
+    });
+  };
+
+  // User Management Handlers
+  const handleCreateAdminUser = () => {
+    if (!newAdminUser.email.trim() || !newAdminUser.password.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (adminUsers.some(u => u.email === newAdminUser.email)) {
+      toast({
+        title: "Validation Error",
+        description: "An admin user with this email already exists",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newUser = {
+      id: Date.now().toString(),
+      email: newAdminUser.email,
+      createdAt: new Date().toISOString(),
+      lastLogin: null
+    };
+
+    const updatedUsers = [...adminUsers, newUser];
+    setAdminUsers(updatedUsers);
+    localStorage.setItem('adminUsers', JSON.stringify(updatedUsers));
+
+    setNewAdminUser({ email: '', password: '' });
+    setIsCreatingUser(false);
+
+    toast({
+      title: "Success",
+      description: "Admin user created successfully",
+    });
+  };
+
+  const handleDeleteAdminUser = (userId: string) => {
+    if (userId === '1') {
+      toast({
+        title: "Error",
+        description: "Cannot delete the primary admin user",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const updatedUsers = adminUsers.filter(u => u.id !== userId);
+    setAdminUsers(updatedUsers);
+    localStorage.setItem('adminUsers', JSON.stringify(updatedUsers));
+
+    toast({
+      title: "Success",
+      description: "Admin user deleted successfully",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
@@ -385,7 +490,7 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs defaultValue="posts" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6">
             <TabsTrigger value="posts" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Content
@@ -401,6 +506,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="transparency" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Transparency
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Users
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -813,6 +922,90 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
 
+          <TabsContent value="users" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>User Management</CardTitle>
+                    <CardDescription>Manage admin users who can access the dashboard</CardDescription>
+                  </div>
+                  <Button onClick={() => setIsCreatingUser(!isCreatingUser)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Admin User
+                  </Button>
+                </div>
+              </CardHeader>
+              
+              {isCreatingUser && (
+                <CardContent className="border-t">
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="userEmail">Email</Label>
+                      <Input
+                        id="userEmail"
+                        type="email"
+                        value={newAdminUser.email}
+                        onChange={(e) => setNewAdminUser({ ...newAdminUser, email: e.target.value })}
+                        placeholder="Enter admin email"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="userPassword">Password</Label>
+                      <Input
+                        id="userPassword"
+                        type="password"
+                        value={newAdminUser.password}
+                        onChange={(e) => setNewAdminUser({ ...newAdminUser, password: e.target.value })}
+                        placeholder="Enter password"
+                      />
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button onClick={handleCreateAdminUser}>Create User</Button>
+                      <Button variant="outline" onClick={() => setIsCreatingUser(false)}>Cancel</Button>
+                    </div>
+                  </div>
+                </CardContent>
+              )}
+            </Card>
+
+            {/* Admin Users List */}
+            <div className="space-y-4">
+              {adminUsers.map((adminUser) => (
+                <Card key={adminUser.id}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold">{adminUser.email}</h3>
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <span>Created: {new Date(adminUser.createdAt).toLocaleDateString()}</span>
+                          {adminUser.lastLogin && (
+                            <span>Last Login: {new Date(adminUser.lastLogin).toLocaleDateString()}</span>
+                          )}
+                        </div>
+                        <Badge variant="secondary">Admin</Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        {adminUser.id !== '1' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteAdminUser(adminUser.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
           <TabsContent value="settings" className="space-y-6">
             <Card>
               <CardHeader>
@@ -868,27 +1061,49 @@ const AdminDashboard = () => {
               <CardContent className="space-y-4">
                 <div>
                   <Label htmlFor="companyName">Company Name</Label>
-                  <Input id="companyName" defaultValue="TechCorp Solutions" />
+                  <Input 
+                    id="companyName" 
+                    value={companySettings.companyName}
+                    onChange={(e) => setCompanySettings({ ...companySettings, companyName: e.target.value })}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="companyDescription">Description</Label>
                   <Textarea 
                     id="companyDescription" 
-                    defaultValue="Leading technology and infrastructure solutions provider"
+                    value={companySettings.description}
+                    onChange={(e) => setCompanySettings({ ...companySettings, description: e.target.value })}
                     rows={3}
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="email">Contact Email</Label>
-                    <Input id="email" defaultValue="contact@techcorp.com" />
+                    <Input 
+                      id="email" 
+                      value={companySettings.email}
+                      onChange={(e) => setCompanySettings({ ...companySettings, email: e.target.value })}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" defaultValue="+1 (555) 123-4567" />
+                    <Input 
+                      id="phone" 
+                      value={companySettings.phone}
+                      onChange={(e) => setCompanySettings({ ...companySettings, phone: e.target.value })}
+                    />
                   </div>
                 </div>
-                <Button>Save Settings</Button>
+                <div>
+                  <Label htmlFor="address">Address</Label>
+                  <Input 
+                    id="address" 
+                    value={companySettings.address}
+                    onChange={(e) => setCompanySettings({ ...companySettings, address: e.target.value })}
+                    placeholder="Company address"
+                  />
+                </div>
+                <Button onClick={handleSaveSettings}>Save Settings</Button>
               </CardContent>
             </Card>
           </TabsContent>
