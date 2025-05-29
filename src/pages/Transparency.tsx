@@ -3,9 +3,21 @@ import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, FileText, Users, Globe } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Shield, FileText, Users, Globe, FilePdf, Download } from 'lucide-react';
 
 const Transparency = () => {
+  // Get transparency documents from localStorage
+  const transparencyDocs = JSON.parse(localStorage.getItem('transparencyDocs') || '[]');
+
+  const downloadDocument = (doc: any) => {
+    // In a real app, this would download from a server
+    const link = document.createElement('a');
+    link.href = doc.fileUrl;
+    link.download = doc.fileName;
+    link.click();
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -25,6 +37,54 @@ const Transparency = () => {
             </div>
           </div>
         </section>
+
+        {/* Transparency Documents */}
+        {transparencyDocs.length > 0 && (
+          <section className="py-16 bg-gray-50 dark:bg-gray-800">
+            <div className="container mx-auto px-4">
+              <div className="max-w-4xl mx-auto">
+                <h2 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
+                  Published Documents
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {transparencyDocs.map((doc: any) => (
+                    <Card key={doc.id} className="hover:shadow-lg transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex items-start space-x-4">
+                          <div className="flex-shrink-0">
+                            <FilePdf className="h-8 w-8 text-red-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                              {doc.title}
+                            </h3>
+                            <p className="text-gray-600 dark:text-gray-300 mb-3">
+                              {doc.description}
+                            </p>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                                Published: {new Date(doc.publishDate).toLocaleDateString()}
+                              </span>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => downloadDocument(doc)}
+                                className="flex items-center gap-2"
+                              >
+                                <Download className="h-4 w-4" />
+                                Download
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Transparency Content */}
         <section className="py-16">
@@ -118,13 +178,13 @@ const Transparency = () => {
         </section>
 
         {/* Additional Information */}
-        <section className="py-16 bg-gray-50">
+        <section className="py-16 bg-gray-50 dark:bg-gray-800">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-bold text-center mb-8">
+              <h2 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
                 Our Commitment to Transparency
               </h2>
-              <div className="prose prose-lg mx-auto text-gray-600">
+              <div className="prose prose-lg mx-auto text-gray-600 dark:text-gray-300">
                 <p>
                   At TechCorp Solutions, transparency isn't just a buzzword—it's a core principle 
                   that guides everything we do. We believe that openness builds trust, and trust 
@@ -138,7 +198,7 @@ const Transparency = () => {
                 <p>
                   For specific inquiries or additional information not covered in our public reports, 
                   please contact our transparency team at{' '}
-                  <a href="mailto:transparency@techcorp.com" className="text-blue-600 hover:text-blue-800">
+                  <a href="mailto:transparency@techcorp.com" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
                     transparency@techcorp.com
                   </a>
                 </p>

@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit, Trash2, FileText, Settings, Eye, EyeOff, Upload, Image, DollarSign, ImageIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, FileText, Settings, Eye, EyeOff, Upload, Image, DollarSign, ImageIcon, FilePdf, Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Post } from '@/types';
 
@@ -74,6 +74,16 @@ const AdminDashboard = () => {
     }
   ]);
 
+  // Transparency Documents State
+  const [transparencyDocs, setTransparencyDocs] = useState([]);
+  const [newTransparencyDoc, setNewTransparencyDoc] = useState({
+    title: '',
+    description: '',
+    fileName: '',
+    fileUrl: '',
+    publishDate: new Date().toISOString().split('T')[0]
+  });
+
   const [editingPlan, setEditingPlan] = useState<any>(null);
   const [editingGalleryItem, setEditingGalleryItem] = useState<any>(null);
 
@@ -92,6 +102,12 @@ const AdminDashboard = () => {
     const savedGallery = localStorage.getItem('galleryItems');
     if (savedGallery) {
       setGalleryItems(JSON.parse(savedGallery));
+    }
+
+    // Load transparency documents from localStorage
+    const savedDocs = localStorage.getItem('transparencyDocs');
+    if (savedDocs) {
+      setTransparencyDocs(JSON.parse(savedDocs));
     }
   }, [user, navigate]);
 
@@ -251,6 +267,91 @@ const AdminDashboard = () => {
     });
   };
 
+  // Transparency Document Handlers
+  const handleDocumentUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit for PDFs
+        toast({
+          title: "File too large",
+          description: "Please select a file smaller than 10MB",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (file.type !== 'application/pdf') {
+        toast({
+          title: "Invalid file type",
+          description: "Please select a PDF file",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setNewTransparencyDoc({
+          ...newTransparencyDoc,
+          fileName: file.name,
+          fileUrl: result
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAddTransparencyDoc = () => {
+    if (!newTransparencyDoc.title.trim() || !newTransparencyDoc.description.trim() || !newTransparencyDoc.fileUrl) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields and upload a PDF",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newDoc = {
+      ...newTransparencyDoc,
+      id: Date.now().toString()
+    };
+
+    const updatedDocs = [...transparencyDocs, newDoc];
+    setTransparencyDocs(updatedDocs);
+    localStorage.setItem('transparencyDocs', JSON.stringify(updatedDocs));
+
+    setNewTransparencyDoc({
+      title: '',
+      description: '',
+      fileName: '',
+      fileUrl: '',
+      publishDate: new Date().toISOString().split('T')[0]
+    });
+
+    toast({
+      title: "Success",
+      description: "Transparency document added successfully",
+    });
+  };
+
+  const handleDeleteTransparencyDoc = (id: string) => {
+    const updatedDocs = transparencyDocs.filter(doc => doc.id !== id);
+    setTransparencyDocs(updatedDocs);
+    localStorage.setItem('transparencyDocs', JSON.stringify(updatedDocs));
+    toast({
+      title: "Success",
+      description: "Document deleted successfully",
+    });
+  };
+
+  const downloadDocument = (doc: any) => {
+    const link = document.createElement('a');
+    link.href = doc.fileUrl;
+    link.download = doc.fileName;
+    link.click();
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
@@ -262,7 +363,7 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs defaultValue="posts" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
             <TabsTrigger value="posts" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Content
@@ -274,6 +375,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="gallery" className="flex items-center gap-2">
               <ImageIcon className="h-4 w-4" />
               Gallery
+            </TabsTrigger>
+            <TabsTrigger value="transparency" className="flex items-center gap-2">
+              <FilePdf className="h-4 w-4" />
+              Transparency
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -526,6 +631,134 @@ const AdminDashboard = () => {
                       </CardContent>
                     </Card>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="transparency" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Transparency Documents</CardTitle>
+                <CardDescription>Upload and manage transparency reports, policies, and compliance documents</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Upload New Document */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Upload New Document</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="docTitle">Document Title</Label>
+                        <Input
+                          id="docTitle"
+                          value={newTransparencyDoc.title}
+                          onChange={(e) => setNewTransparencyDoc({ ...newTransparencyDoc, title: e.target.value })}
+                          placeholder="e.g., Q1 2024 Financial Report"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="publishDate">Publish Date</Label>
+                        <Input
+                          id="publishDate"
+                          type="date"
+                          value={newTransparencyDoc.publishDate}
+                          onChange={(e) => setNewTransparencyDoc({ ...newTransparencyDoc, publishDate: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="docDescription">Description</Label>
+                      <Textarea
+                        id="docDescription"
+                        value={newTransparencyDoc.description}
+                        onChange={(e) => setNewTransparencyDoc({ ...newTransparencyDoc, description: e.target.value })}
+                        placeholder="Brief description of the document content"
+                        rows={3}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="pdfFile">PDF Document</Label>
+                      <Input
+                        id="pdfFile"
+                        type="file"
+                        accept=".pdf"
+                        onChange={handleDocumentUpload}
+                        className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      />
+                      <p className="text-sm text-gray-500 mt-1">
+                        Upload PDF files only. Max file size: 10MB
+                      </p>
+                      {newTransparencyDoc.fileName && (
+                        <p className="text-sm text-green-600 mt-1">
+                          Selected: {newTransparencyDoc.fileName}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <Button onClick={handleAddTransparencyDoc} className="w-full">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload Document
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Documents List */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Published Documents</h3>
+                  {transparencyDocs.length === 0 ? (
+                    <Card>
+                      <CardContent className="p-8 text-center">
+                        <FilePdf className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-500">No transparency documents uploaded yet.</p>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    transparencyDocs.map((doc: any) => (
+                      <Card key={doc.id}>
+                        <CardContent className="p-6">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start space-x-4">
+                              <FilePdf className="h-8 w-8 text-red-600 flex-shrink-0 mt-1" />
+                              <div>
+                                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                  {doc.title}
+                                </h4>
+                                <p className="text-gray-600 dark:text-gray-300 mb-2">
+                                  {doc.description}
+                                </p>
+                                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                                  <span>Published: {new Date(doc.publishDate).toLocaleDateString()}</span>
+                                  <span>File: {doc.fileName}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => downloadDocument(doc)}
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDeleteTransparencyDoc(doc.id)}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
