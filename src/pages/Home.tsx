@@ -3,6 +3,7 @@ import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import PublicPostCard from '@/components/PublicPostCard';
+import ParticlesBackground from '@/components/ParticlesBackground';
 import { usePosts } from '@/hooks/usePosts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -103,9 +104,10 @@ const Home = () => {
     <div className="min-h-screen flex flex-col dark:bg-gray-900">
       <Header />
       
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-gray-900 dark:via-blue-900 dark:to-gray-900 text-white py-20">
-        <div className="container mx-auto px-4">
+      {/* Hero Section with Particles */}
+      <section className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-gray-900 dark:via-blue-900 dark:to-gray-900 text-white py-20 overflow-hidden">
+        <ParticlesBackground className="absolute inset-0 z-0" />
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
               Secure Infrastructure Solutions
