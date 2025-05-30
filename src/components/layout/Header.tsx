@@ -3,19 +3,15 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, Shield } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 
 const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [companyLogo, setCompanyLogo] = React.useState<string | null>(null);
   const [companyName, setCompanyName] = React.useState<string>('TechCorp Solutions');
 
   React.useEffect(() => {
-    const logo = localStorage.getItem('companyLogo');
-    setCompanyLogo(logo);
-    
     const settings = localStorage.getItem('companySettings');
     if (settings) {
       const parsedSettings = JSON.parse(settings);
@@ -32,16 +28,7 @@ const Header = () => {
     <header className="bg-slate-900 dark:bg-slate-950 text-white shadow-lg">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            {companyLogo ? (
-              <img 
-                src={companyLogo} 
-                alt="Company Logo" 
-                className="h-8 w-auto max-w-32 object-contain"
-              />
-            ) : (
-              <Shield className="h-8 w-8 text-blue-400" />
-            )}
+          <Link to="/" className="flex items-center">
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
               {companyName}
             </span>

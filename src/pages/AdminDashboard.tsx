@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit, Trash2, FileText, Settings, Eye, EyeOff, Upload, Image, DollarSign, ImageIcon, Download, Users } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Plus, Edit, Trash2, FileText, Settings, Eye, EyeOff, Upload, Image, DollarSign, ImageIcon, Download, Users, Save, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Post } from '@/types';
 
@@ -57,6 +58,7 @@ const AdminDashboard = () => {
     email: '',
     password: ''
   });
+  const [editingUser, setEditingUser] = useState<any>(null);
   const [isCreatingUser, setIsCreatingUser] = useState(false);
 
   // Pricing Plans State
@@ -419,7 +421,7 @@ const AdminDashboard = () => {
     });
   };
 
-  // User Management Handlers
+  // Enhanced User Management Handlers
   const handleCreateAdminUser = () => {
     if (!newAdminUser.email.trim() || !newAdminUser.password.trim()) {
       toast({
@@ -456,6 +458,48 @@ const AdminDashboard = () => {
     toast({
       title: "Success",
       description: "Admin user created successfully",
+    });
+  };
+
+  const handleEditUser = (userId: string) => {
+    const userToEdit = adminUsers.find(u => u.id === userId);
+    if (userToEdit) {
+      setEditingUser({ ...userToEdit, password: '' });
+    }
+  };
+
+  const handleUpdateUser = () => {
+    if (!editingUser?.email.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in the email field",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (adminUsers.some(u => u.email === editingUser.email && u.id !== editingUser.id)) {
+      toast({
+        title: "Validation Error",
+        description: "An admin user with this email already exists",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const updatedUsers = adminUsers.map(u => 
+      u.id === editingUser.id 
+        ? { ...u, email: editingUser.email }
+        : u
+    );
+    
+    setAdminUsers(updatedUsers);
+    localStorage.setItem('adminUsers', JSON.stringify(updatedUsers));
+    setEditingUser(null);
+
+    toast({
+      title: "Success",
+      description: "Admin user updated successfully",
     });
   };
 
@@ -518,7 +562,6 @@ const AdminDashboard = () => {
           </TabsList>
 
           <TabsContent value="posts" className="space-y-6">
-            {/* Create New Post */}
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -591,7 +634,6 @@ const AdminDashboard = () => {
               )}
             </Card>
 
-            {/* Posts List */}
             <div className="space-y-4">
               {allPosts.map((post) => (
                 <Card key={post.id}>
@@ -774,7 +816,6 @@ const AdminDashboard = () => {
                 <CardDescription>Upload and manage transparency reports, policies, and compliance documents by category</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Upload New Document */}
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg">Upload New Document</CardTitle>
@@ -854,7 +895,6 @@ const AdminDashboard = () => {
                   </CardContent>
                 </Card>
 
-                {/* Documents List by Category */}
                 <div className="space-y-6">
                   <h3 className="text-lg font-semibold">Published Documents by Category</h3>
                   {transparencyCategories.map((category) => {
@@ -971,39 +1011,93 @@ const AdminDashboard = () => {
               )}
             </Card>
 
-            {/* Admin Users List */}
-            <div className="space-y-4">
-              {adminUsers.map((adminUser) => (
-                <Card key={adminUser.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold">{adminUser.email}</h3>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span>Created: {new Date(adminUser.createdAt).toLocaleDateString()}</span>
-                          {adminUser.lastLogin && (
-                            <span>Last Login: {new Date(adminUser.lastLogin).toLocaleDateString()}</span>
+            <Card>
+              <CardHeader>
+                <CardTitle>Admin Users</CardTitle>
+                <CardDescription>View and manage all admin users</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead>Last Login</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {adminUsers.map((adminUser) => (
+                      <TableRow key={adminUser.id}>
+                        <TableCell>
+                          {editingUser?.id === adminUser.id ? (
+                            <Input
+                              value={editingUser.email}
+                              onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                              className="w-full"
+                            />
+                          ) : (
+                            adminUser.email
                           )}
-                        </div>
-                        <Badge variant="secondary">Admin</Badge>
-                      </div>
-                      <div className="flex gap-2">
-                        {adminUser.id !== '1' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDeleteAdminUser(adminUser.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                        </TableCell>
+                        <TableCell>{new Date(adminUser.createdAt).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          {adminUser.lastLogin 
+                            ? new Date(adminUser.lastLogin).toLocaleDateString() 
+                            : 'Never'
+                          }
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">Admin</Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            {editingUser?.id === adminUser.id ? (
+                              <>
+                                <Button
+                                  size="sm"
+                                  onClick={handleUpdateUser}
+                                >
+                                  <Save className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setEditingUser(null)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </>
+                            ) : (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleEditUser(adminUser.id)}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                {adminUser.id !== '1' && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleDeleteAdminUser(adminUser.id)}
+                                    className="text-red-600 hover:text-red-700"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
