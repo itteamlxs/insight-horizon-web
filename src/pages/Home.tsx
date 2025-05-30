@@ -3,7 +3,6 @@ import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import PublicPostCard from '@/components/PublicPostCard';
-import ParticlesBackground from '@/components/ParticlesBackground';
 import { usePosts } from '@/hooks/usePosts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +12,9 @@ import { Shield, Server, Lock, Zap, Check } from 'lucide-react';
 const Home = () => {
   const { getPublicPosts, loading } = usePosts();
   const publicPosts = getPublicPosts();
+
+  // Get video background from localStorage
+  const [videoBackground, setVideoBackground] = React.useState<string>('');
 
   // Get pricing plans from localStorage
   const [pricingPlans, setPricingPlans] = React.useState([
@@ -98,29 +100,49 @@ const Home = () => {
     if (savedGallery) {
       setGalleryItems(JSON.parse(savedGallery));
     }
+
+    const savedVideo = localStorage.getItem('videoBackground');
+    if (savedVideo) {
+      setVideoBackground(savedVideo);
+    }
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col dark:bg-gray-900">
       <Header />
       
-      {/* Hero Section with Particles */}
+      {/* Hero Section with Video Background */}
       <section className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-gray-900 dark:via-blue-900 dark:to-gray-900 text-white py-20 overflow-hidden">
-        <ParticlesBackground className="absolute inset-0 z-0" />
-        <div className="container mx-auto px-4 relative z-10">
+        {/* Video Background */}
+        {videoBackground && (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover z-0"
+          >
+            <source src={videoBackground} type="video/mp4" />
+          </video>
+        )}
+        
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/50 z-10"></div>
+        
+        <div className="container mx-auto px-4 relative z-20">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
               Secure Infrastructure Solutions
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
+            <p className="text-xl md:text-2xl text-gray-200 mb-8 leading-relaxed">
               Building the future of technology with enterprise-grade security, 
               scalable infrastructure, and innovative solutions.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-3">
                 Get Started
               </Button>
-              <Button size="lg" variant="outline" className="border-gray-400 text-white hover:bg-gray-800 px-8 py-3">
+              <Button size="lg" variant="outline" className="border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 backdrop-blur-sm transition-all duration-300 px-8 py-3">
                 Learn More
               </Button>
             </div>
@@ -142,15 +164,15 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6">
-              <div className="bg-blue-100 dark:bg-blue-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+              <div className="bg-blue-100 dark:bg-blue-900/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Shield className="h-8 w-8 text-primary" />
               </div>
               <h3 className="text-xl font-semibold mb-2 dark:text-white">Enterprise Security</h3>
               <p className="text-gray-600 dark:text-gray-300">Military-grade encryption and security protocols</p>
             </div>
             
             <div className="text-center p-6">
-              <div className="bg-green-100 dark:bg-green-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-green-100 dark:bg-green-900/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Server className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
               <h3 className="text-xl font-semibold mb-2 dark:text-white">Scalable Infrastructure</h3>
@@ -158,7 +180,7 @@ const Home = () => {
             </div>
             
             <div className="text-center p-6">
-              <div className="bg-purple-100 dark:bg-purple-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-purple-100 dark:bg-purple-900/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Lock className="h-8 w-8 text-purple-600 dark:text-purple-400" />
               </div>
               <h3 className="text-xl font-semibold mb-2 dark:text-white">Data Protection</h3>
@@ -166,7 +188,7 @@ const Home = () => {
             </div>
             
             <div className="text-center p-6">
-              <div className="bg-orange-100 dark:bg-orange-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-orange-100 dark:bg-orange-900/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Zap className="h-8 w-8 text-orange-600 dark:text-orange-400" />
               </div>
               <h3 className="text-xl font-semibold mb-2 dark:text-white">Lightning Fast</h3>
@@ -190,10 +212,10 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {pricingPlans.map((plan) => (
-              <Card key={plan.id} className={`relative ${plan.highlighted ? 'border-blue-500 border-2 dark:border-blue-400' : 'dark:bg-gray-800 dark:border-gray-700'}`}>
+              <Card key={plan.id} className={`relative ${plan.highlighted ? 'border-primary border-2' : 'dark:bg-gray-800 dark:border-gray-700'}`}>
                 {plan.highlighted && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">
+                    <span className="bg-primary text-white px-4 py-1 rounded-full text-sm font-medium">
                       Most Popular
                     </span>
                   </div>
@@ -216,7 +238,11 @@ const Home = () => {
                     ))}
                   </ul>
                   <Button 
-                    className={`w-full ${plan.highlighted ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                    className={`w-full transition-all duration-300 ${
+                      plan.highlighted 
+                        ? 'bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl' 
+                        : 'border-2 border-primary text-primary hover:bg-primary hover:text-white dark:text-primary dark:border-primary dark:hover:bg-primary dark:hover:text-white'
+                    }`}
                     variant={plan.highlighted ? 'default' : 'outline'}
                   >
                     Get Started

@@ -35,17 +35,17 @@ const Header = () => {
           </Link>
           
           <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/" className="hover:text-blue-400 transition-colors">
+            <Link to="/" className="hover:text-blue-400 transition-colors duration-300">
               Home
             </Link>
-            <Link to="/about" className="hover:text-blue-400 transition-colors">
+            <Link to="/about" className="hover:text-blue-400 transition-colors duration-300">
               About
             </Link>
-            <Link to="/transparency" className="hover:text-blue-400 transition-colors">
+            <Link to="/transparency" className="hover:text-blue-400 transition-colors duration-300">
               Transparency
             </Link>
             {user && (
-              <Link to="/admin" className="hover:text-blue-400 transition-colors">
+              <Link to="/admin" className="hover:text-blue-400 transition-colors duration-300">
                 Admin Dashboard
               </Link>
             )}
@@ -62,7 +62,7 @@ const Header = () => {
                   variant="outline"
                   size="sm"
                   onClick={handleLogout}
-                  className="text-white border-gray-600 hover:bg-gray-800"
+                  className="border-2 border-white/50 text-white hover:bg-white/20 hover:border-white/70 backdrop-blur-sm transition-all duration-300"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
@@ -70,7 +70,11 @@ const Header = () => {
               </div>
             ) : (
               <Link to="/login">
-                <Button variant="outline" size="sm" className="text-white border-gray-600 hover:bg-gray-800">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-2 border-white/50 text-white hover:bg-white/20 hover:border-white/70 backdrop-blur-sm transition-all duration-300"
+                >
                   Admin Login
                 </Button>
               </Link>
