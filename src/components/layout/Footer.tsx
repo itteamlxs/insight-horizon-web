@@ -1,17 +1,26 @@
 
 import React from 'react';
-import { Shield, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 const Footer = () => {
+  const [companyName, setCompanyName] = React.useState<string>('TechCorp Solutions');
+
+  React.useEffect(() => {
+    const settings = localStorage.getItem('companySettings');
+    if (settings) {
+      const parsedSettings = JSON.parse(settings);
+      setCompanyName(parsedSettings.companyName || 'TechCorp Solutions');
+    }
+  }, []);
+
   return (
     <footer className="bg-slate-900 text-white">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <Shield className="h-8 w-8 text-blue-400" />
+            <div className="mb-4">
               <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                TechCorp Solutions
+                {companyName}
               </span>
             </div>
             <p className="text-gray-300 mb-4 max-w-md">
@@ -66,7 +75,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 TechCorp Solutions. All rights reserved.</p>
+          <p>&copy; 2024 {companyName}. All rights reserved.</p>
         </div>
       </div>
     </footer>
