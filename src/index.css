@@ -113,8 +113,24 @@
     @apply border-primary text-primary hover:bg-primary hover:text-white;
   }
   
-  /* Header button specific styles */
+  /* Header button specific styles for Light Mode visibility */
   .header-btn-outline {
-    @apply border-2 border-white/50 text-white hover:bg-white/20 hover:border-white/70 backdrop-blur-sm;
+    @apply border-2 text-white hover:bg-white/20 hover:border-white/70 backdrop-blur-sm;
+    background-color: rgb(37 99 235); /* cobalt blue bg-blue-600 */
+    border-color: rgb(37 99 235);
+  }
+
+  .header-btn-outline:hover {
+    background-color: rgb(29 78 216); /* bg-blue-700 */
+    border-color: rgb(29 78 216);
+  }
+
+  /* Dark mode header buttons remain unchanged */
+  .dark .header-btn-outline {
+    @apply border-white/50 text-white hover:bg-white/20 hover:border-white/70 bg-transparent;
+  }
+
+  .dark .header-btn-outline:hover {
+    @apply bg-white/20 border-white/70;
   }
 }

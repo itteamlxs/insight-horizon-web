@@ -24,7 +24,7 @@ const Home = () => {
     enabled: false
   });
 
-  // Get pricing plans from localStorage
+  // Get pricing plans from localStorage (now with editable features)
   const [pricingPlans, setPricingPlans] = React.useState([
     {
       id: '1',
@@ -126,6 +126,16 @@ const Home = () => {
     }
   ];
 
+  // Helper function to convert YouTube URLs to embed format
+  const getYouTubeEmbedUrl = (url: string) => {
+    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(youtubeRegex);
+    if (match) {
+      return `https://www.youtube.com/embed/${match[1]}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&playlist=${match[1]}`;
+    }
+    return url; // Return original URL if not YouTube
+  };
+
   React.useEffect(() => {
     const savedSettings = localStorage.getItem('companySettings');
     if (savedSettings) {
@@ -176,7 +186,7 @@ const Home = () => {
         {videoBackground.enabled && videoBackground.videoUrl && (
           <div className="absolute inset-0 z-0">
             <iframe
-              src={videoBackground.videoUrl}
+              src={getYouTubeEmbedUrl(videoBackground.videoUrl)}
               className="w-full h-full object-cover"
               allow="autoplay; fullscreen"
               style={{ 
@@ -211,7 +221,7 @@ const Home = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-8 py-3"
+                className="border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-8 py-3 dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-blue-600"
               >
                 Learn More
               </Button>
