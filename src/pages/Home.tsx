@@ -3,15 +3,24 @@ import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import PublicPostCard from '@/components/PublicPostCard';
+import ContactForm from '@/components/ui/contact-form';
+import ArticleModal from '@/components/ui/article-modal';
 import { usePosts } from '@/hooks/usePosts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Shield, Server, Lock, Zap, Check } from 'lucide-react';
+import { Post } from '@/types';
 
 const Home = () => {
   const { getPublicPosts, loading } = usePosts();
   const publicPosts = getPublicPosts();
+
+  // State for modals
+  const [contactFormOpen, setContactFormOpen] = React.useState(false);
+  const [selectedPlan, setSelectedPlan] = React.useState<string>('');
+  const [articleModalOpen, setArticleModalOpen] = React.useState(false);
+  const [selectedArticle, setSelectedArticle] = React.useState<Post | null>(null);
 
   // Get video background from localStorage
   const [videoBackground, setVideoBackground] = React.useState<string>('');
@@ -107,6 +116,23 @@ const Home = () => {
     }
   }, []);
 
+  const scrollToPricing = () => {
+    const pricingSection = document.getElementById('pricing-section');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleGetStarted = (planName: string) => {
+    setSelectedPlan(planName);
+    setContactFormOpen(true);
+  };
+
+  const handleArticleClick = (article: Post) => {
+    setSelectedArticle(article);
+    setArticleModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen flex flex-col dark:bg-gray-900">
       <Header />
@@ -139,10 +165,18 @@ const Home = () => {
               scalable infrastructure, and innovative solutions.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-3">
+              <Button 
+                size="lg" 
+                onClick={scrollToPricing}
+                className="bg-primary hover:bg-primary/90 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-3"
+              >
                 Get Started
               </Button>
-              <Button size="lg" variant="outline" className="border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 backdrop-blur-sm transition-all duration-300 px-8 py-3">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-2 border-white text-white hover:bg-white hover:text-slate-900 backdrop-blur-sm transition-all duration-300 px-8 py-3"
+              >
                 Learn More
               </Button>
             </div>
@@ -199,7 +233,7 @@ const Home = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-16 dark:bg-gray-900">
+      <section id="pricing-section" className="py-16 dark:bg-gray-900">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -238,6 +272,7 @@ const Home = () => {
                     ))}
                   </ul>
                   <Button 
+                    onClick={() => handleGetStarted(plan.name)}
                     className={`w-full transition-all duration-300 ${
                       plan.highlighted 
                         ? 'bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl' 
@@ -312,7 +347,9 @@ const Home = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {publicPosts.map(post => (
-                <PublicPostCard key={post.id} post={post} />
+                <div key={post.id} onClick={() => handleArticleClick(post)} className="cursor-pointer">
+                  <PublicPostCard post={post} />
+                </div>
               ))}
             </div>
           )}
@@ -326,6 +363,19 @@ const Home = () => {
       </section>
 
       <Footer />
+
+      {/* Modals */}
+      <ContactForm 
+        isOpen={contactFormOpen}
+        onClose={() => setContactFormOpen(false)}
+        selectedPlan={selectedPlan}
+      />
+      
+      <ArticleModal
+        isOpen={articleModalOpen}
+        onClose={() => setArticleModalOpen(false)}
+        article={selectedArticle}
+      />
     </div>
   );
 };
