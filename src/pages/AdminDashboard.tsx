@@ -45,6 +45,12 @@ const AdminDashboard = () => {
     address: ''
   });
 
+  // Video Background Settings
+  const [videoBackground, setVideoBackground] = useState({
+    videoUrl: localStorage.getItem('videoBackground') || '',
+    enabled: localStorage.getItem('videoBackgroundEnabled') === 'true'
+  });
+
   // User Management State
   const [adminUsers, setAdminUsers] = useState([
     {
@@ -122,6 +128,13 @@ const AdminDashboard = () => {
 
   const [editingPlan, setEditingPlan] = useState<any>(null);
   const [editingGalleryItem, setEditingGalleryItem] = useState<any>(null);
+  const [newGalleryItem, setNewGalleryItem] = useState({
+    title: '',
+    description: '',
+    imageUrl: '',
+    category: ''
+  });
+  const [isCreatingGalleryItem, setIsCreatingGalleryItem] = useState(false);
 
   React.useEffect(() => {
     if (!user) {
@@ -283,11 +296,29 @@ const AdminDashboard = () => {
   };
 
   // Gallery Item Handlers
-  const handleAddGalleryItem = (item: any) => {
-    const newItem = { ...item, id: Date.now().toString() };
+  const handleCreateGalleryItem = () => {
+    if (!newGalleryItem.title.trim() || !newGalleryItem.description.trim() || !newGalleryItem.imageUrl.trim() || !newGalleryItem.category.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newItem = { ...newGalleryItem, id: Date.now().toString() };
     const updatedItems = [...galleryItems, newItem];
     setGalleryItems(updatedItems);
     localStorage.setItem('galleryItems', JSON.stringify(updatedItems));
+    
+    setNewGalleryItem({
+      title: '',
+      description: '',
+      imageUrl: '',
+      category: ''
+    });
+    setIsCreatingGalleryItem(false);
+    
     toast({
       title: "Success",
       description: "Gallery item added successfully",
@@ -315,7 +346,16 @@ const AdminDashboard = () => {
     });
   };
 
-  // Transparency Document Handlers
+  // Video Background Handlers
+  const handleVideoBackgroundSave = () => {
+    localStorage.setItem('videoBackground', videoBackground.videoUrl);
+    localStorage.setItem('videoBackgroundEnabled', videoBackground.enabled.toString());
+    toast({
+      title: "Success",
+      description: "Video background settings saved successfully",
+    });
+  };
+
   const handleDocumentUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -708,7 +748,7 @@ const AdminDashboard = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Pricing Plans</CardTitle>
-                <CardDescription>Manage your pricing plans and features</CardDescription>
+                <CardDescription>Manage your pricing plans, features, and descriptions</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -717,22 +757,35 @@ const AdminDashboard = () => {
                       <CardContent className="p-4">
                         {editingPlan?.id === plan.id ? (
                           <div className="space-y-4">
-                            <Input
-                              value={editingPlan.name}
-                              onChange={(e) => setEditingPlan({ ...editingPlan, name: e.target.value })}
-                              placeholder="Plan name"
-                            />
-                            <Input
-                              type="number"
-                              value={editingPlan.price}
-                              onChange={(e) => setEditingPlan({ ...editingPlan, price: parseInt(e.target.value) })}
-                              placeholder="Price"
-                            />
-                            <Input
-                              value={editingPlan.description}
-                              onChange={(e) => setEditingPlan({ ...editingPlan, description: e.target.value })}
-                              placeholder="Description"
-                            />
+                            <div>
+                              <Label htmlFor="planName">Plan Name</Label>
+                              <Input
+                                id="planName"
+                                value={editingPlan.name}
+                                onChange={(e) => setEditingPlan({ ...editingPlan, name: e.target.value })}
+                                placeholder="Plan name"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="planPrice">Price (per month)</Label>
+                              <Input
+                                id="planPrice"
+                                type="number"
+                                value={editingPlan.price}
+                                onChange={(e) => setEditingPlan({ ...editingPlan, price: parseInt(e.target.value) })}
+                                placeholder="Price"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="planDescription">Description</Label>
+                              <Textarea
+                                id="planDescription"
+                                value={editingPlan.description}
+                                onChange={(e) => setEditingPlan({ ...editingPlan, description: e.target.value })}
+                                placeholder="Plan description"
+                                rows={2}
+                              />
+                            </div>
                             <div className="flex gap-2">
                               <Button onClick={() => handleUpdatePlan(editingPlan)}>Save</Button>
                               <Button variant="outline" onClick={() => setEditingPlan(null)}>Cancel</Button>
@@ -742,7 +795,16 @@ const AdminDashboard = () => {
                           <div className="flex items-center justify-between">
                             <div>
                               <h3 className="text-lg font-semibold">{plan.name}</h3>
-                              <p className="text-gray-600">${plan.price}/month - {plan.description}</p>
+                              <p className="text-2xl font-bold text-blue-600">${plan.price}/month</p>
+                              <p className="text-gray-600 mt-1">{plan.description}</p>
+                              <div className="mt-2">
+                                <p className="text-sm font-medium text-gray-700 mb-1">Features:</p>
+                                <ul className="text-sm text-gray-600">
+                                  {plan.features.map((feature, index) => (
+                                    <li key={index}>• {feature}</li>
+                                  ))}
+                                </ul>
+                              </div>
                             </div>
                             <Button
                               variant="outline"
@@ -763,44 +825,145 @@ const AdminDashboard = () => {
           <TabsContent value="gallery" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Gallery Management</CardTitle>
-                <CardDescription>Manage your project gallery and portfolio items</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Gallery Management</CardTitle>
+                    <CardDescription>Manage your project gallery and portfolio items</CardDescription>
+                  </div>
+                  <Button onClick={() => setIsCreatingGalleryItem(!isCreatingGalleryItem)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Gallery Item
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
+                {isCreatingGalleryItem && (
+                  <Card className="mb-6">
+                    <CardHeader>
+                      <CardTitle className="text-lg">Add New Gallery Item</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <Label htmlFor="galleryTitle">Title</Label>
+                        <Input
+                          id="galleryTitle"
+                          value={newGalleryItem.title}
+                          onChange={(e) => setNewGalleryItem({ ...newGalleryItem, title: e.target.value })}
+                          placeholder="Enter gallery item title"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="galleryDescription">Description</Label>
+                        <Textarea
+                          id="galleryDescription"
+                          value={newGalleryItem.description}
+                          onChange={(e) => setNewGalleryItem({ ...newGalleryItem, description: e.target.value })}
+                          placeholder="Enter description"
+                          rows={3}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="galleryImageUrl">Image URL</Label>
+                        <Input
+                          id="galleryImageUrl"
+                          value={newGalleryItem.imageUrl}
+                          onChange={(e) => setNewGalleryItem({ ...newGalleryItem, imageUrl: e.target.value })}
+                          placeholder="Enter image URL"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="galleryCategory">Category</Label>
+                        <Input
+                          id="galleryCategory"
+                          value={newGalleryItem.category}
+                          onChange={(e) => setNewGalleryItem({ ...newGalleryItem, category: e.target.value })}
+                          placeholder="Enter category"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button onClick={handleCreateGalleryItem}>Add Item</Button>
+                        <Button variant="outline" onClick={() => setIsCreatingGalleryItem(false)}>Cancel</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
                 <div className="space-y-4">
                   {galleryItems.map((item) => (
                     <Card key={item.id}>
                       <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <img
-                              src={item.imageUrl}
-                              alt={item.title}
-                              className="w-16 h-16 object-cover rounded"
-                            />
+                        {editingGalleryItem?.id === item.id ? (
+                          <div className="space-y-4">
                             <div>
-                              <h3 className="text-lg font-semibold">{item.title}</h3>
-                              <p className="text-gray-600">{item.description}</p>
-                              <Badge variant="secondary">{item.category}</Badge>
+                              <Label htmlFor="editTitle">Title</Label>
+                              <Input
+                                id="editTitle"
+                                value={editingGalleryItem.title}
+                                onChange={(e) => setEditingGalleryItem({ ...editingGalleryItem, title: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="editDescription">Description</Label>
+                              <Textarea
+                                id="editDescription"
+                                value={editingGalleryItem.description}
+                                onChange={(e) => setEditingGalleryItem({ ...editingGalleryItem, description: e.target.value })}
+                                rows={3}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="editImageUrl">Image URL</Label>
+                              <Input
+                                id="editImageUrl"
+                                value={editingGalleryItem.imageUrl}
+                                onChange={(e) => setEditingGalleryItem({ ...editingGalleryItem, imageUrl: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="editCategory">Category</Label>
+                              <Input
+                                id="editCategory"
+                                value={editingGalleryItem.category}
+                                onChange={(e) => setEditingGalleryItem({ ...editingGalleryItem, category: e.target.value })}
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              <Button onClick={() => handleUpdateGalleryItem(editingGalleryItem)}>Save</Button>
+                              <Button variant="outline" onClick={() => setEditingGalleryItem(null)}>Cancel</Button>
                             </div>
                           </div>
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setEditingGalleryItem(item)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDeleteGalleryItem(item.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <img
+                                src={item.imageUrl}
+                                alt={item.title}
+                                className="w-16 h-16 object-cover rounded"
+                              />
+                              <div>
+                                <h3 className="text-lg font-semibold">{item.title}</h3>
+                                <p className="text-gray-600">{item.description}</p>
+                                <Badge variant="secondary">{item.category}</Badge>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setEditingGalleryItem(item)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDeleteGalleryItem(item.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </CardContent>
                     </Card>
                   ))}
@@ -1101,6 +1264,36 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Video Background Settings</CardTitle>
+                <CardDescription>Configure the background video for the main banner</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="videoEnabled"
+                    checked={videoBackground.enabled}
+                    onCheckedChange={(checked) => setVideoBackground({ ...videoBackground, enabled: checked })}
+                  />
+                  <Label htmlFor="videoEnabled">Enable Video Background</Label>
+                </div>
+                <div>
+                  <Label htmlFor="videoUrl">Video URL</Label>
+                  <Input
+                    id="videoUrl"
+                    value={videoBackground.videoUrl}
+                    onChange={(e) => setVideoBackground({ ...videoBackground, videoUrl: e.target.value })}
+                    placeholder="Enter video URL (e.g., YouTube embed URL)"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Use a direct video URL or YouTube embed URL for best results
+                  </p>
+                </div>
+                <Button onClick={handleVideoBackgroundSave}>Save Video Settings</Button>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Company Logo</CardTitle>

@@ -1,20 +1,20 @@
-
 import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import PublicPostCard from '@/components/PublicPostCard';
-import ContactForm from '@/components/ui/contact-form';
-import ArticleModal from '@/components/ui/article-modal';
-import { usePosts } from '@/hooks/usePosts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Server, Lock, Zap, Check } from 'lucide-react';
-import { Post } from '@/types';
+import { ArrowRight, CheckCircle, Shield, Zap, Users, Star, Calendar } from 'lucide-react';
+import { usePosts } from '@/hooks/usePosts';
+import ArticleModal from '@/components/ui/article-modal';
+import ContactForm from '@/components/ui/contact-form';
 
 const Home = () => {
-  const { getPublicPosts, loading } = usePosts();
-  const publicPosts = getPublicPosts();
+  const { getAllPosts } = usePosts();
+  const [selectedArticle, setSelectedArticle] = React.useState(null);
+  const [isArticleModalOpen, setIsArticleModalOpen] = React.useState(false);
+  const [isContactFormOpen, setIsContactFormOpen] = React.useState(false);
+  const [selectedPlan, setSelectedPlan] = React.useState('');
 
   // State for modals
   const [contactFormOpen, setContactFormOpen] = React.useState(false);
@@ -23,7 +23,10 @@ const Home = () => {
   const [selectedArticle, setSelectedArticle] = React.useState<Post | null>(null);
 
   // Get video background from localStorage
-  const [videoBackground, setVideoBackground] = React.useState<string>('');
+  const [videoBackground, setVideoBackground] = React.useState({
+    videoUrl: '',
+    enabled: false
+  });
 
   // Get pricing plans from localStorage
   const [pricingPlans, setPricingPlans] = React.useState([
@@ -99,22 +102,34 @@ const Home = () => {
     }
   ]);
 
+  // Company settings
+  const [companySettings, setCompanySettings] = React.useState({
+    companyName: 'TechCorp Solutions',
+    description: 'Leading technology and infrastructure solutions provider'
+  });
+
   React.useEffect(() => {
+    const savedSettings = localStorage.getItem('companySettings');
+    if (savedSettings) {
+      setCompanySettings(JSON.parse(savedSettings));
+    }
+
+    const savedVideoUrl = localStorage.getItem('videoBackground');
+    const savedVideoEnabled = localStorage.getItem('videoBackgroundEnabled') === 'true';
+    if (savedVideoUrl || savedVideoEnabled) {
+      setVideoBackground({
+        videoUrl: savedVideoUrl || '',
+        enabled: savedVideoEnabled
+      });
+    }
+
     const savedPlans = localStorage.getItem('pricingPlans');
     if (savedPlans) {
       setPricingPlans(JSON.parse(savedPlans));
     }
-
-    const savedGallery = localStorage.getItem('galleryItems');
-    if (savedGallery) {
-      setGalleryItems(JSON.parse(savedGallery));
-    }
-
-    const savedVideo = localStorage.getItem('videoBackground');
-    if (savedVideo) {
-      setVideoBackground(savedVideo);
-    }
   }, []);
+
+  const publicPosts = getAllPosts().filter(post => post.isPublic).slice(0, 3);
 
   const scrollToPricing = () => {
     const pricingSection = document.getElementById('pricing-section');
@@ -125,57 +140,60 @@ const Home = () => {
 
   const handleGetStarted = (planName: string) => {
     setSelectedPlan(planName);
-    setContactFormOpen(true);
+    setIsContactFormOpen(true);
   };
 
-  const handleArticleClick = (article: Post) => {
+  const handleArticleClick = (article: any) => {
     setSelectedArticle(article);
-    setArticleModalOpen(true);
+    setIsArticleModalOpen(true);
   };
 
   return (
     <div className="min-h-screen flex flex-col dark:bg-gray-900">
       <Header />
       
-      {/* Hero Section with Video Background */}
-      <section className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-gray-900 dark:via-blue-900 dark:to-gray-900 text-white py-20 overflow-hidden">
+      {/* Hero Section */}
+      <section className="relative py-20 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white overflow-hidden">
         {/* Video Background */}
-        {videoBackground && (
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover z-0"
-          >
-            <source src={videoBackground} type="video/mp4" />
-          </video>
+        {videoBackground.enabled && videoBackground.videoUrl && (
+          <div className="absolute inset-0 z-0">
+            <iframe
+              src={videoBackground.videoUrl}
+              className="w-full h-full object-cover"
+              allow="autoplay; fullscreen"
+              style={{ 
+                transform: 'scale(1.1)',
+                filter: 'brightness(0.7)'
+              }}
+            />
+          </div>
         )}
         
-        {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-black/50 z-10"></div>
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/20 z-10"></div>
         
         <div className="container mx-auto px-4 relative z-20">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              Secure Infrastructure Solutions
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+              Transform Your Business with 
+              <span className="text-blue-200"> {companySettings.companyName}</span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-200 mb-8 leading-relaxed">
-              Building the future of technology with enterprise-grade security, 
-              scalable infrastructure, and innovative solutions.
+            <p className="text-xl md:text-2xl mb-8 text-blue-100">
+              {companySettings.description}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg" 
+                className="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-8 py-3"
                 onClick={scrollToPricing}
-                className="bg-primary hover:bg-primary/90 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-3"
               >
                 Get Started
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-2 border-white text-white hover:bg-white hover:text-slate-900 backdrop-blur-sm transition-all duration-300 px-8 py-3"
+                className="border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-8 py-3"
               >
                 Learn More
               </Button>
@@ -189,67 +207,65 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Why Choose TechCorp?
+              Why Choose Our Solutions?
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              We provide cutting-edge technology solutions with an unwavering focus on security and reliability.
+              We provide enterprise-grade technology solutions that scale with your business needs
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center p-6">
-              <div className="bg-blue-100 dark:bg-blue-900/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2 dark:text-white">Enterprise Security</h3>
-              <p className="text-gray-600 dark:text-gray-300">Military-grade encryption and security protocols</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card className="text-center hover:shadow-lg transition-shadow dark:bg-gray-900 dark:border-gray-700">
+              <CardContent className="p-6">
+                <Shield className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2 dark:text-white">Enterprise Security</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Bank-level security with end-to-end encryption and compliance with industry standards
+                </p>
+              </CardContent>
+            </Card>
             
-            <div className="text-center p-6">
-              <div className="bg-green-100 dark:bg-green-900/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Server className="h-8 w-8 text-green-600 dark:text-green-400" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2 dark:text-white">Scalable Infrastructure</h3>
-              <p className="text-gray-600 dark:text-gray-300">Auto-scaling solutions that grow with your business</p>
-            </div>
+            <Card className="text-center hover:shadow-lg transition-shadow dark:bg-gray-900 dark:border-gray-700">
+              <CardContent className="p-6">
+                <Zap className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2 dark:text-white">Lightning Fast</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Optimized performance with 99.9% uptime guarantee and global CDN distribution
+                </p>
+              </CardContent>
+            </Card>
             
-            <div className="text-center p-6">
-              <div className="bg-purple-100 dark:bg-purple-900/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lock className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2 dark:text-white">Data Protection</h3>
-              <p className="text-gray-600 dark:text-gray-300">Advanced backup and disaster recovery systems</p>
-            </div>
-            
-            <div className="text-center p-6">
-              <div className="bg-orange-100 dark:bg-orange-900/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-8 w-8 text-orange-600 dark:text-orange-400" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2 dark:text-white">Lightning Fast</h3>
-              <p className="text-gray-600 dark:text-gray-300">Optimized performance with global CDN</p>
-            </div>
+            <Card className="text-center hover:shadow-lg transition-shadow dark:bg-gray-900 dark:border-gray-700">
+              <CardContent className="p-6">
+                <Users className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2 dark:text-white">24/7 Support</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Round-the-clock expert support with dedicated account managers for enterprise clients
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing-section" className="py-16 dark:bg-gray-900">
+      <section id="pricing-section" className="py-16 bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Choose Your Plan
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Select the perfect plan for your business needs. All plans include our core features with varying levels of support and resources.
+              Flexible pricing options to match your business needs and growth trajectory
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {pricingPlans.map((plan) => (
-              <Card key={plan.id} className={`relative ${plan.highlighted ? 'border-primary border-2' : 'dark:bg-gray-800 dark:border-gray-700'}`}>
+              <Card key={plan.id} className={`relative ${plan.highlighted ? 'border-blue-500 border-2 dark:border-blue-400' : 'dark:bg-gray-800 dark:border-gray-700'}`}>
                 {plan.highlighted && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-primary text-white px-4 py-1 rounded-full text-sm font-medium">
+                    <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">
                       Most Popular
                     </span>
                   </div>
@@ -266,19 +282,15 @@ const Home = () => {
                   <ul className="space-y-3 mb-6">
                     {plan.features.map((feature, index) => (
                       <li key={index} className="flex items-center space-x-2">
-                        <Check className="h-5 w-5 text-green-500" />
+                        <CheckCircle className="h-5 w-5 text-green-500" />
                         <span className="dark:text-gray-300">{feature}</span>
                       </li>
                     ))}
                   </ul>
                   <Button 
-                    onClick={() => handleGetStarted(plan.name)}
-                    className={`w-full transition-all duration-300 ${
-                      plan.highlighted 
-                        ? 'bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl' 
-                        : 'border-2 border-primary text-primary hover:bg-primary hover:text-white dark:text-primary dark:border-primary dark:hover:bg-primary dark:hover:text-white'
-                    }`}
+                    className={`w-full ${plan.highlighted ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
                     variant={plan.highlighted ? 'default' : 'outline'}
+                    onClick={() => handleGetStarted(plan.name)}
                   >
                     Get Started
                   </Button>
@@ -289,36 +301,34 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Gallery Section */}
+      {/* Testimonials Section */}
       <section className="py-16 bg-gray-50 dark:bg-gray-800">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Our Work Gallery
+              What Our Clients Say
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Explore our portfolio of successful projects and innovative solutions across various technology domains.
+              Hear from businesses that have transformed their operations with our solutions
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {galleryItems.slice(0, 6).map((item) => (
-              <Card key={item.id} className="group overflow-hidden hover:shadow-lg transition-shadow dark:bg-gray-900 dark:border-gray-700">
-                <div className="aspect-video overflow-hidden">
-                  <img
-                    src={item.imageUrl}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{item.title}</h3>
-                    <Badge variant="secondary" className="text-xs">
-                      {item.category}
-                    </Badge>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="dark:bg-gray-900 dark:border-gray-700">
+                <CardContent className="p-6">
+                  <div className="flex items-center mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                    ))}
                   </div>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm">{item.description}</p>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4 italic">
+                    "{testimonial.content}"
+                  </p>
+                  <div>
+                    <p className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.company}</p>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -326,56 +336,69 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Latest News Section */}
-      <section className="py-16 dark:bg-gray-900">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Latest News & Updates
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
-              Stay informed with our latest press releases and company announcements
-            </p>
+      {/* Latest News & Updates Section */}
+      {publicPosts.length > 0 && (
+        <section className="py-16 bg-white dark:bg-gray-900">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                Latest News & Updates
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                Stay informed with our latest announcements, press releases, and company news
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {publicPosts.map((post) => (
+                <Card 
+                  key={post.id} 
+                  className="hover:shadow-lg transition-shadow cursor-pointer dark:bg-gray-800 dark:border-gray-700"
+                  onClick={() => handleArticleClick(post)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <Badge variant="secondary">
+                        {post.type.replace('_', ' ').toUpperCase()}
+                      </Badge>
+                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        {new Date(post.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-semibold mb-3 dark:text-white">{post.title}</h3>
+                    <p className="text-gray-600 dark:text-gray-300 line-clamp-3">
+                      {post.content.length > 150 
+                        ? `${post.content.substring(0, 150)}...` 
+                        : post.content
+                      }
+                    </p>
+                    <div className="mt-4">
+                      <span className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                        Read more →
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-          
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="bg-gray-200 dark:bg-gray-700 rounded-lg h-64 animate-pulse"></div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {publicPosts.map(post => (
-                <div key={post.id} onClick={() => handleArticleClick(post)} className="cursor-pointer">
-                  <PublicPostCard post={post} />
-                </div>
-              ))}
-            </div>
-          )}
-          
-          {publicPosts.length === 0 && !loading && (
-            <div className="text-center py-12">
-              <p className="text-gray-600 dark:text-gray-400">No public posts available at this time.</p>
-            </div>
-          )}
-        </div>
-      </section>
+        </section>
+      )}
 
-      <Footer />
-
-      {/* Modals */}
-      <ContactForm 
-        isOpen={contactFormOpen}
-        onClose={() => setContactFormOpen(false)}
-        selectedPlan={selectedPlan}
-      />
-      
-      <ArticleModal
-        isOpen={articleModalOpen}
-        onClose={() => setArticleModalOpen(false)}
+      <ArticleModal 
+        isOpen={isArticleModalOpen}
+        onClose={() => setIsArticleModalOpen(false)}
         article={selectedArticle}
       />
+
+      <ContactForm 
+        isOpen={isContactFormOpen}
+        onClose={() => setIsContactFormOpen(false)}
+        selectedPlan={selectedPlan}
+      />
+
+      <Footer />
     </div>
   );
 };

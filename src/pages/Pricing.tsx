@@ -5,6 +5,7 @@ import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check } from 'lucide-react';
+import ContactForm from '@/components/ui/contact-form';
 
 const Pricing = () => {
   const [pricingPlans, setPricingPlans] = React.useState([
@@ -34,12 +35,20 @@ const Pricing = () => {
     }
   ]);
 
+  const [isContactFormOpen, setIsContactFormOpen] = React.useState(false);
+  const [selectedPlan, setSelectedPlan] = React.useState<string>('');
+
   React.useEffect(() => {
     const savedPlans = localStorage.getItem('pricingPlans');
     if (savedPlans) {
       setPricingPlans(JSON.parse(savedPlans));
     }
   }, []);
+
+  const handleGetStarted = (planName: string) => {
+    setSelectedPlan(planName);
+    setIsContactFormOpen(true);
+  };
 
   return (
     <div className="min-h-screen flex flex-col dark:bg-gray-900">
@@ -86,6 +95,7 @@ const Pricing = () => {
                   <Button 
                     className={`w-full ${plan.highlighted ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
                     variant={plan.highlighted ? 'default' : 'outline'}
+                    onClick={() => handleGetStarted(plan.name)}
                   >
                     Get Started
                   </Button>
@@ -95,6 +105,12 @@ const Pricing = () => {
           </div>
         </div>
       </section>
+
+      <ContactForm 
+        isOpen={isContactFormOpen}
+        onClose={() => setIsContactFormOpen(false)}
+        selectedPlan={selectedPlan}
+      />
 
       <Footer />
     </div>
