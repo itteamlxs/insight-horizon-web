@@ -115,14 +115,16 @@
   
   /* Header button specific styles for Light Mode visibility */
   .header-btn-outline {
-    @apply border-2 text-white hover:bg-white/20 hover:border-white/70 backdrop-blur-sm;
-    background-color: rgb(37 99 235); /* cobalt blue bg-blue-600 */
-    border-color: rgb(37 99 235);
+    @apply border-2 backdrop-blur-sm transition-all duration-300;
+    background-color: #0056b3; /* cobalt blue */
+    border-color: #0056b3;
+    color: white;
   }
 
   .header-btn-outline:hover {
-    background-color: rgb(29 78 216); /* bg-blue-700 */
-    border-color: rgb(29 78 216);
+    background-color: #004494; /* darker cobalt blue */
+    border-color: #004494;
+    color: white;
   }
 
   /* Dark mode header buttons remain unchanged */
@@ -132,5 +134,77 @@
 
   .dark .header-btn-outline:hover {
     @apply bg-white/20 border-white/70;
+  }
+
+  /* YouTube video panoramic styling */
+  .youtube-video-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .youtube-video-panoramic {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1920px;
+    height: calc(1920px * 9 / 16); /* 16:9 aspect ratio */
+    min-width: 100%;
+    min-height: 100%;
+  }
+
+  /* Responsive adjustments for YouTube video */
+  @media (max-width: 1920px) {
+    .youtube-video-panoramic {
+      width: 120vw;
+      height: calc(120vw * 9 / 16);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .youtube-video-panoramic {
+      width: 150vw;
+      height: calc(150vw * 9 / 16);
+    }
+  }
+
+  /* Learn More button specific styles for Light Mode */
+  .learn-more-btn {
+    @apply transition-all duration-300;
+    background-color: #0056b3; /* cobalt blue */
+    border-color: #0056b3;
+    color: white;
+  }
+
+  .learn-more-btn:hover {
+    background-color: #004494; /* darker cobalt blue */
+    border-color: #004494;
+    color: white;
+  }
+
+  /* Dark mode Learn More button */
+  .dark .learn-more-btn {
+    @apply bg-primary text-white hover:bg-primary/90;
+  }
+
+  /* Admin login/logout button styles for Light Mode */
+  .admin-btn {
+    @apply transition-all duration-300;
+    background-color: #0056b3; /* cobalt blue */
+    border-color: #0056b3;
+    color: white;
+  }
+
+  .admin-btn:hover {
+    background-color: #004494; /* darker cobalt blue */
+    border-color: #004494;
+    color: white;
+  }
+
+  /* Dark mode admin button */
+  .dark .admin-btn {
+    @apply bg-primary text-white hover:bg-primary/90;
   }
 }
