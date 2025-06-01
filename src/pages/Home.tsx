@@ -181,26 +181,27 @@ const Home = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white overflow-hidden">
+      <section className="relative h-[720px] bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white overflow-hidden">
         {/* Video Background */}
         {videoBackground.enabled && videoBackground.videoUrl && (
-          <div className="absolute inset-0 z-0">
-            <iframe
-              src={getYouTubeEmbedUrl(videoBackground.videoUrl)}
-              className="w-full h-full object-cover"
-              allow="autoplay; fullscreen"
-              style={{ 
-                transform: 'scale(1.1)',
-                filter: 'brightness(0.7)'
-              }}
-            />
+          <div className="absolute inset-0 z-0 flex items-center justify-center">
+            <div className="w-[1920px] h-[720px] relative">
+              <iframe
+                src={getYouTubeEmbedUrl(videoBackground.videoUrl)}
+                className="w-full h-full object-cover"
+                allow="autoplay; fullscreen"
+                style={{ 
+                  filter: 'brightness(0.7)'
+                }}
+              />
+            </div>
           </div>
         )}
         
         {/* Overlay */}
         <div className="absolute inset-0 bg-black/20 z-10"></div>
         
-        <div className="container mx-auto px-4 relative z-20">
+        <div className="container mx-auto px-4 relative z-20 h-full flex items-center">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
               Transform Your Business with 
