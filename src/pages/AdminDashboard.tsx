@@ -14,7 +14,7 @@ import { usePosts } from '@/hooks/usePosts';
 import { Post } from '@/types';
 
 const AdminDashboard = () => {
-  const { getAllPosts, createPost, updatePost, deletePost } = usePosts();
+  const { getAllPosts, addPost, updatePost, deletePost } = usePosts();
   
   // Company Settings
   const [companySettings, setCompanySettings] = React.useState({
@@ -231,7 +231,7 @@ const AdminDashboard = () => {
   // Post management functions
   const handleCreatePost = () => {
     if (newPost.title && newPost.content) {
-      createPost(newPost);
+      addPost(newPost);
       setNewPost({
         title: '',
         content: '',
