@@ -231,7 +231,10 @@ const AdminDashboard = () => {
   // Post management functions
   const handleCreatePost = () => {
     if (newPost.title && newPost.content) {
-      addPost(newPost);
+      addPost({
+        ...newPost,
+        authorId: '1' // Default admin author ID
+      });
       setNewPost({
         title: '',
         content: '',
