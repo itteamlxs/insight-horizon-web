@@ -16,10 +16,11 @@ import { Post } from '@/types';
 const AdminDashboard = () => {
   const { getAllPosts, addPost, updatePost, deletePost } = usePosts();
   
-  // Company Settings
+  // Company Settings with logo
   const [companySettings, setCompanySettings] = React.useState({
     companyName: 'TechCorp Solutions',
-    description: 'Leading technology and infrastructure solutions provider'
+    description: 'Leading technology and infrastructure solutions provider',
+    logoUrl: ''
   });
 
   // Video Background Settings
@@ -109,6 +110,19 @@ const AdminDashboard = () => {
       setGalleryItems(JSON.parse(savedGallery));
     }
   }, []);
+
+  // Logo upload handler
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const logoUrl = e.target?.result as string;
+        setCompanySettings(prev => ({ ...prev, logoUrl }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Image upload handler
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, type: 'gallery' | 'editing') => {
@@ -299,7 +313,7 @@ const AdminDashboard = () => {
             <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
                 <CardTitle className="dark:text-white">Company Information</CardTitle>
-                <CardDescription className="dark:text-gray-300">Update your company details</CardDescription>
+                <CardDescription className="dark:text-gray-300">Update your company details and logo</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -319,6 +333,37 @@ const AdminDashboard = () => {
                     onChange={(e) => setCompanySettings(prev => ({ ...prev, description: e.target.value }))}
                     className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
+                </div>
+                <div>
+                  <Label htmlFor="logo" className="dark:text-white">Company Logo</Label>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      id="logo"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                    {companySettings.logoUrl && (
+                      <div className="flex items-center gap-2">
+                        <img 
+                          src={companySettings.logoUrl} 
+                          alt="Company Logo" 
+                          className="w-16 h-16 object-contain rounded border"
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setCompanySettings(prev => ({ ...prev, logoUrl: '' }))}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Upload a logo that will be displayed in the navigation bar
+                  </p>
                 </div>
                 <Button onClick={saveCompanySettings} className="w-full">
                   Save Company Settings

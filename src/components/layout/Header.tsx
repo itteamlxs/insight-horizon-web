@@ -10,12 +10,14 @@ const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [companyName, setCompanyName] = React.useState<string>('TechCorp Solutions');
+  const [companyLogo, setCompanyLogo] = React.useState<string>('');
 
   React.useEffect(() => {
     const settings = localStorage.getItem('companySettings');
     if (settings) {
       const parsedSettings = JSON.parse(settings);
       setCompanyName(parsedSettings.companyName || 'TechCorp Solutions');
+      setCompanyLogo(parsedSettings.logoUrl || '');
     }
   }, []);
 
@@ -28,7 +30,14 @@ const Header = () => {
     <header className="bg-slate-900 dark:bg-slate-950 text-white shadow-lg">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center">
+          <Link to="/" className="flex items-center gap-3">
+            {companyLogo && (
+              <img 
+                src={companyLogo} 
+                alt={`${companyName} Logo`}
+                className="h-10 w-auto object-contain"
+              />
+            )}
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
               {companyName}
             </span>
