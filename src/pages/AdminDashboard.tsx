@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -9,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Edit, Plus, Upload, X } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Trash2, Edit, Plus, Upload, X, Settings, DollarSign, Image, FileText, Building } from 'lucide-react';
 import { usePosts } from '@/hooks/usePosts';
 import { Post } from '@/types';
 
@@ -270,485 +270,516 @@ const AdminDashboard = () => {
       <div className="flex-1 container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8 dark:text-white">Admin Dashboard</h1>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          
-          {/* Company Settings */}
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="dark:text-white">Company Settings</CardTitle>
-              <CardDescription className="dark:text-gray-300">Update your company information</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="companyName" className="dark:text-white">Company Name</Label>
-                <Input
-                  id="companyName"
-                  value={companySettings.companyName}
-                  onChange={(e) => setCompanySettings(prev => ({ ...prev, companyName: e.target.value }))}
-                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
-              </div>
-              <div>
-                <Label htmlFor="description" className="dark:text-white">Description</Label>
-                <Textarea
-                  id="description"
-                  value={companySettings.description}
-                  onChange={(e) => setCompanySettings(prev => ({ ...prev, description: e.target.value }))}
-                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
-              </div>
-              <Button onClick={saveCompanySettings} className="w-full">
-                Save Company Settings
-              </Button>
-            </CardContent>
-          </Card>
+        <Tabs defaultValue="company" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="company" className="flex items-center gap-2">
+              <Building className="h-4 w-4" />
+              Company
+            </TabsTrigger>
+            <TabsTrigger value="pricing" className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Pricing
+            </TabsTrigger>
+            <TabsTrigger value="gallery" className="flex items-center gap-2">
+              <Image className="h-4 w-4" />
+              Gallery
+            </TabsTrigger>
+            <TabsTrigger value="content" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Content
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
 
-          {/* Video Background Settings */}
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="dark:text-white">Video Background</CardTitle>
-              <CardDescription className="dark:text-gray-300">Configure hero section video background (supports YouTube URLs)</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="videoEnabled"
-                  checked={videoSettings.enabled}
-                  onCheckedChange={(enabled) => setVideoSettings(prev => ({ ...prev, enabled }))}
-                />
-                <Label htmlFor="videoEnabled" className="dark:text-white">Enable Video Background</Label>
-              </div>
-              <div>
-                <Label htmlFor="videoUrl" className="dark:text-white">Video URL (YouTube or direct link)</Label>
-                <Input
-                  id="videoUrl"
-                  value={videoSettings.videoUrl}
-                  onChange={(e) => setVideoSettings(prev => ({ ...prev, videoUrl: e.target.value }))}
-                  placeholder="https://www.youtube.com/watch?v=... or direct video URL"
-                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
-              </div>
-              <Button onClick={saveVideoSettings} className="w-full">
-                Save Video Settings
-              </Button>
-            </CardContent>
-          </Card>
+          {/* Company Settings Tab */}
+          <TabsContent value="company" className="space-y-6">
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
+              <CardHeader>
+                <CardTitle className="dark:text-white">Company Information</CardTitle>
+                <CardDescription className="dark:text-gray-300">Update your company details</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="companyName" className="dark:text-white">Company Name</Label>
+                  <Input
+                    id="companyName"
+                    value={companySettings.companyName}
+                    onChange={(e) => setCompanySettings(prev => ({ ...prev, companyName: e.target.value }))}
+                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="description" className="dark:text-white">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={companySettings.description}
+                    onChange={(e) => setCompanySettings(prev => ({ ...prev, description: e.target.value }))}
+                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+                <Button onClick={saveCompanySettings} className="w-full">
+                  Save Company Settings
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-          {/* Pricing Plans Management */}
-          <Card className="lg:col-span-2 dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="dark:text-white">Pricing Plans Management</CardTitle>
-              <CardDescription className="dark:text-gray-300">Edit pricing plans and their features</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {pricingPlans.map((plan) => (
-                  <Card key={plan.id} className="dark:bg-gray-700 dark:border-gray-600">
-                    <CardHeader>
-                      <div className="flex justify-between items-center">
-                        <CardTitle className="text-lg dark:text-white">{plan.name}</CardTitle>
-                        <Button size="sm" onClick={() => handleEditPlan(plan)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <CardDescription className="dark:text-gray-300">${plan.price}/month</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm mb-2 dark:text-gray-300">{plan.description}</p>
-                      <div className="space-y-1">
-                        {plan.features.map((feature, index) => (
-                          <div key={index} className="text-xs text-gray-600 dark:text-gray-400">
-                            • {feature}
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              {/* Edit Plan Modal */}
-              {editingPlan && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                  <Card className="w-full max-w-md max-h-[80vh] overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
-                    <CardHeader>
-                      <div className="flex justify-between items-center">
-                        <CardTitle className="dark:text-white">Edit Plan: {editingPlan.name}</CardTitle>
-                        <Button size="sm" variant="ghost" onClick={() => setEditingPlan(null)}>
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <Label className="dark:text-white">Plan Name</Label>
-                        <Input
-                          value={editingPlan.name}
-                          onChange={(e) => setEditingPlan({...editingPlan, name: e.target.value})}
-                          className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        />
-                      </div>
-                      <div>
-                        <Label className="dark:text-white">Price</Label>
-                        <Input
-                          type="number"
-                          value={editingPlan.price}
-                          onChange={(e) => setEditingPlan({...editingPlan, price: parseInt(e.target.value)})}
-                          className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        />
-                      </div>
-                      <div>
-                        <Label className="dark:text-white">Description</Label>
-                        <Input
-                          value={editingPlan.description}
-                          onChange={(e) => setEditingPlan({...editingPlan, description: e.target.value})}
-                          className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        />
-                      </div>
-                      <div>
-                        <div className="flex justify-between items-center mb-2">
-                          <Label className="dark:text-white">Features</Label>
-                          <Button size="sm" onClick={addPlanFeature}>
-                            <Plus className="h-4 w-4" />
+          {/* Pricing Plans Tab */}
+          <TabsContent value="pricing" className="space-y-6">
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
+              <CardHeader>
+                <CardTitle className="dark:text-white">Pricing Plans Management</CardTitle>
+                <CardDescription className="dark:text-gray-300">Edit pricing plans and their features</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {pricingPlans.map((plan) => (
+                    <Card key={plan.id} className="dark:bg-gray-700 dark:border-gray-600">
+                      <CardHeader>
+                        <div className="flex justify-between items-center">
+                          <CardTitle className="text-lg dark:text-white">{plan.name}</CardTitle>
+                          <Button size="sm" onClick={() => handleEditPlan(plan)}>
+                            <Edit className="h-4 w-4" />
                           </Button>
                         </div>
-                        <div className="space-y-2">
-                          {editingPlan.features.map((feature: string, index: number) => (
-                            <div key={index} className="flex gap-2">
-                              <Input
-                                value={feature}
-                                onChange={(e) => handlePlanFeatureChange(index, e.target.value)}
-                                className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                              />
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => removePlanFeature(index)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                        <CardDescription className="dark:text-gray-300">${plan.price}/month</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm mb-2 dark:text-gray-300">{plan.description}</p>
+                        <div className="space-y-1">
+                          {plan.features.map((feature, index) => (
+                            <div key={index} className="text-xs text-gray-600 dark:text-gray-400">
+                              • {feature}
                             </div>
                           ))}
                         </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          checked={editingPlan.highlighted}
-                          onCheckedChange={(checked) => setEditingPlan({...editingPlan, highlighted: checked})}
-                        />
-                        <Label className="dark:text-white">Mark as Popular</Label>
-                      </div>
-                      <Button onClick={handleSavePlan} className="w-full">
-                        Save Plan
-                      </Button>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-              )}
-            </CardContent>
-          </Card>
 
-          {/* Gallery Management */}
-          <Card className="lg:col-span-2 dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="dark:text-white">Gallery Management</CardTitle>
-              <CardDescription className="dark:text-gray-300">Upload and manage gallery images</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {/* Add New Gallery Item */}
-              <Card className="mb-6 dark:bg-gray-700 dark:border-gray-600">
-                <CardHeader>
-                  <CardTitle className="text-lg dark:text-white">Add New Gallery Item</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="dark:text-white">Title</Label>
-                      <Input
-                        value={newGalleryItem.title}
-                        onChange={(e) => setNewGalleryItem(prev => ({...prev, title: e.target.value}))}
-                        className="dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-                      />
-                    </div>
-                    <div>
-                      <Label className="dark:text-white">Category</Label>
-                      <Input
-                        value={newGalleryItem.category}
-                        onChange={(e) => setNewGalleryItem(prev => ({...prev, category: e.target.value}))}
-                        className="dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-                      />
-                    </div>
+                {/* Edit Plan Modal */}
+                {editingPlan && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <Card className="w-full max-w-md max-h-[80vh] overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
+                      <CardHeader>
+                        <div className="flex justify-between items-center">
+                          <CardTitle className="dark:text-white">Edit Plan: {editingPlan.name}</CardTitle>
+                          <Button size="sm" variant="ghost" onClick={() => setEditingPlan(null)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="dark:text-white">Plan Name</Label>
+                          <Input
+                            value={editingPlan.name}
+                            onChange={(e) => setEditingPlan({...editingPlan, name: e.target.value})}
+                            className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          />
+                        </div>
+                        <div>
+                          <Label className="dark:text-white">Price</Label>
+                          <Input
+                            type="number"
+                            value={editingPlan.price}
+                            onChange={(e) => setEditingPlan({...editingPlan, price: parseInt(e.target.value)})}
+                            className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          />
+                        </div>
+                        <div>
+                          <Label className="dark:text-white">Description</Label>
+                          <Input
+                            value={editingPlan.description}
+                            onChange={(e) => setEditingPlan({...editingPlan, description: e.target.value})}
+                            className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          />
+                        </div>
+                        <div>
+                          <div className="flex justify-between items-center mb-2">
+                            <Label className="dark:text-white">Features</Label>
+                            <Button size="sm" onClick={addPlanFeature}>
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <div className="space-y-2">
+                            {editingPlan.features.map((feature: string, index: number) => (
+                              <div key={index} className="flex gap-2">
+                                <Input
+                                  value={feature}
+                                  onChange={(e) => handlePlanFeatureChange(index, e.target.value)}
+                                  className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                />
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => removePlanFeature(index)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            checked={editingPlan.highlighted}
+                            onCheckedChange={(checked) => setEditingPlan({...editingPlan, highlighted: checked})}
+                          />
+                          <Label className="dark:text-white">Mark as Popular</Label>
+                        </div>
+                        <Button onClick={handleSavePlan} className="w-full">
+                          Save Plan
+                        </Button>
+                      </CardContent>
+                    </Card>
                   </div>
-                  <div>
-                    <Label className="dark:text-white">Description</Label>
-                    <Textarea
-                      value={newGalleryItem.description}
-                      onChange={(e) => setNewGalleryItem(prev => ({...prev, description: e.target.value}))}
-                      className="dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <Label className="dark:text-white">Upload Image</Label>
-                    <div className="flex items-center gap-4">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload(e, 'gallery')}
-                        className="dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-                      />
-                      {newGalleryItem.imageUrl && (
-                        <img src={newGalleryItem.imageUrl} alt="Preview" className="w-16 h-16 object-cover rounded" />
-                      )}
-                    </div>
-                  </div>
-                  <Button onClick={handleCreateGalleryItem} className="w-full">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Add Gallery Item
-                  </Button>
-                </CardContent>
-              </Card>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-              {/* Gallery Items List */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {galleryItems.map((item) => (
-                  <Card key={item.id} className="dark:bg-gray-700 dark:border-gray-600">
-                    <CardContent className="p-4">
-                      <img src={item.imageUrl} alt={item.title} className="w-full h-32 object-cover rounded mb-2" />
-                      <h3 className="font-semibold text-sm dark:text-white">{item.title}</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">{item.description}</p>
-                      <Badge variant="secondary" className="text-xs mb-2">{item.category}</Badge>
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={() => handleEditGalleryItem(item)}>
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleDeleteGalleryItem(item.id)}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              {/* Edit Gallery Item Modal */}
-              {editingGallery && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                  <Card className="w-full max-w-md dark:bg-gray-800 dark:border-gray-700">
-                    <CardHeader>
-                      <div className="flex justify-between items-center">
-                        <CardTitle className="dark:text-white">Edit Gallery Item</CardTitle>
-                        <Button size="sm" variant="ghost" onClick={() => setEditingGallery(null)}>
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
+          {/* Gallery Management Tab */}
+          <TabsContent value="gallery" className="space-y-6">
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
+              <CardHeader>
+                <CardTitle className="dark:text-white">Gallery Management</CardTitle>
+                <CardDescription className="dark:text-gray-300">Upload and manage gallery images</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {/* Add New Gallery Item */}
+                <Card className="mb-6 dark:bg-gray-700 dark:border-gray-600">
+                  <CardHeader>
+                    <CardTitle className="text-lg dark:text-white">Add New Gallery Item</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label className="dark:text-white">Title</Label>
                         <Input
-                          value={editingGallery.title}
-                          onChange={(e) => setEditingGallery({...editingGallery, title: e.target.value})}
-                          className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          value={newGalleryItem.title}
+                          onChange={(e) => setNewGalleryItem(prev => ({...prev, title: e.target.value}))}
+                          className="dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                         />
                       </div>
                       <div>
                         <Label className="dark:text-white">Category</Label>
                         <Input
-                          value={editingGallery.category}
-                          onChange={(e) => setEditingGallery({...editingGallery, category: e.target.value})}
-                          className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          value={newGalleryItem.category}
+                          onChange={(e) => setNewGalleryItem(prev => ({...prev, category: e.target.value}))}
+                          className="dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                         />
                       </div>
-                      <div>
-                        <Label className="dark:text-white">Description</Label>
-                        <Textarea
-                          value={editingGallery.description}
-                          onChange={(e) => setEditingGallery({...editingGallery, description: e.target.value})}
-                          className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    </div>
+                    <div>
+                      <Label className="dark:text-white">Description</Label>
+                      <Textarea
+                        value={newGalleryItem.description}
+                        onChange={(e) => setNewGalleryItem(prev => ({...prev, description: e.target.value}))}
+                        className="dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <Label className="dark:text-white">Upload Image</Label>
+                      <div className="flex items-center gap-4">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(e, 'gallery')}
+                          className="dark:bg-gray-600 dark:border-gray-500 dark:text-white"
                         />
+                        {newGalleryItem.imageUrl && (
+                          <img src={newGalleryItem.imageUrl} alt="Preview" className="w-16 h-16 object-cover rounded" />
+                        )}
                       </div>
-                      <div>
-                        <Label className="dark:text-white">Upload New Image (optional)</Label>
-                        <div className="flex items-center gap-4">
+                    </div>
+                    <Button onClick={handleCreateGalleryItem} className="w-full">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Add Gallery Item
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Gallery Items List */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {galleryItems.map((item) => (
+                    <Card key={item.id} className="dark:bg-gray-700 dark:border-gray-600">
+                      <CardContent className="p-4">
+                        <img src={item.imageUrl} alt={item.title} className="w-full h-32 object-cover rounded mb-2" />
+                        <h3 className="font-semibold text-sm dark:text-white">{item.title}</h3>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">{item.description}</p>
+                        <Badge variant="secondary" className="text-xs mb-2">{item.category}</Badge>
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={() => handleEditGalleryItem(item)}>
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleDeleteGalleryItem(item.id)}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Edit Gallery Item Modal */}
+                {editingGallery && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <Card className="w-full max-w-md dark:bg-gray-800 dark:border-gray-700">
+                      <CardHeader>
+                        <div className="flex justify-between items-center">
+                          <CardTitle className="dark:text-white">Edit Gallery Item</CardTitle>
+                          <Button size="sm" variant="ghost" onClick={() => setEditingGallery(null)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="dark:text-white">Title</Label>
                           <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleImageUpload(e, 'editing')}
+                            value={editingGallery.title}
+                            onChange={(e) => setEditingGallery({...editingGallery, title: e.target.value})}
                             className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                           />
-                          {editingGallery.imageUrl && (
-                            <img src={editingGallery.imageUrl} alt="Preview" className="w-16 h-16 object-cover rounded" />
-                          )}
                         </div>
-                      </div>
-                      <Button onClick={handleSaveGalleryItem} className="w-full">
-                        Save Changes
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Posts Management */}
-          <Card className="lg:col-span-2 dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="dark:text-white">Content Management</CardTitle>
-              <CardDescription className="dark:text-gray-300">Create and manage posts, announcements, and press releases</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {/* Create New Post */}
-              <Card className="mb-6 dark:bg-gray-700 dark:border-gray-600">
-                <CardHeader>
-                  <CardTitle className="text-lg dark:text-white">Create New Post</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="title" className="dark:text-white">Title</Label>
-                    <Input
-                      id="title"
-                      value={newPost.title}
-                      onChange={(e) => setNewPost(prev => ({ ...prev, title: e.target.value }))}
-                      className="dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="content" className="dark:text-white">Content</Label>
-                    <Textarea
-                      id="content"
-                      value={newPost.content}
-                      onChange={(e) => setNewPost(prev => ({ ...prev, content: e.target.value }))}
-                      rows={4}
-                      className="dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="type" className="dark:text-white">Type</Label>
-                      <select
-                        id="type"
-                        value={newPost.type}
-                        onChange={(e) => setNewPost(prev => ({ ...prev, type: e.target.value as Post['type'] }))}
-                        className="w-full p-2 border rounded-md dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-                      >
-                        <option value="announcement">Announcement</option>
-                        <option value="press_release">Press Release</option>
-                        <option value="company_info">Company Info</option>
-                      </select>
-                    </div>
-                    <div className="flex items-center space-x-2 pt-6">
-                      <Switch
-                        id="isPublic"
-                        checked={newPost.isPublic}
-                        onCheckedChange={(checked) => setNewPost(prev => ({ ...prev, isPublic: checked }))}
-                      />
-                      <Label htmlFor="isPublic" className="dark:text-white">Make Public</Label>
-                    </div>
-                  </div>
-                  <Button onClick={handleCreatePost} className="w-full">
-                    Create Post
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Posts List */}
-              <div className="space-y-4">
-                {posts.map((post) => (
-                  <Card key={post.id} className="dark:bg-gray-700 dark:border-gray-600">
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-2">
                         <div>
-                          <h3 className="font-semibold dark:text-white">{post.title}</h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="secondary">
-                              {post.type.replace('_', ' ').toUpperCase()}
-                            </Badge>
-                            {post.isPublic && <Badge variant="outline">Public</Badge>}
+                          <Label className="dark:text-white">Category</Label>
+                          <Input
+                            value={editingGallery.category}
+                            onChange={(e) => setEditingGallery({...editingGallery, category: e.target.value})}
+                            className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          />
+                        </div>
+                        <div>
+                          <Label className="dark:text-white">Description</Label>
+                          <Textarea
+                            value={editingGallery.description}
+                            onChange={(e) => setEditingGallery({...editingGallery, description: e.target.value})}
+                            className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          />
+                        </div>
+                        <div>
+                          <Label className="dark:text-white">Upload New Image (optional)</Label>
+                          <div className="flex items-center gap-4">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleImageUpload(e, 'editing')}
+                              className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            />
+                            {editingGallery.imageUrl && (
+                              <img src={editingGallery.imageUrl} alt="Preview" className="w-16 h-16 object-cover rounded" />
+                            )}
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={() => handleEditPost(post)}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleDeletePost(post.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        {post.content.length > 150 ? `${post.content.substring(0, 150)}...` : post.content}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                        Created: {new Date(post.createdAt).toLocaleString()}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              {/* Edit Post Modal */}
-              {editingPost && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                  <Card className="w-full max-w-2xl max-h-[80vh] overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
-                    <CardHeader>
-                      <div className="flex justify-between items-center">
-                        <CardTitle className="dark:text-white">Edit Post</CardTitle>
-                        <Button size="sm" variant="ghost" onClick={() => setEditingPost(null)}>
-                          <X className="h-4 w-4" />
+                        <Button onClick={handleSaveGalleryItem} className="w-full">
+                          Save Changes
                         </Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <Label className="dark:text-white">Title</Label>
-                        <Input
-                          value={editingPost.title}
-                          onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
-                          className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        />
-                      </div>
-                      <div>
-                        <Label className="dark:text-white">Content</Label>
-                        <Textarea
-                          value={editingPost.content}
-                          onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
-                          rows={6}
-                          className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label className="dark:text-white">Type</Label>
-                          <select
-                            value={editingPost.type}
-                            onChange={(e) => setEditingPost({ ...editingPost, type: e.target.value as Post['type'] })}
-                            className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                          >
-                            <option value="announcement">Announcement</option>
-                            <option value="press_release">Press Release</option>
-                            <option value="company_info">Company Info</option>
-                          </select>
-                        </div>
-                        <div className="flex items-center space-x-2 pt-6">
-                          <Switch
-                            checked={editingPost.isPublic}
-                            onCheckedChange={(checked) => setEditingPost({ ...editingPost, isPublic: checked })}
-                          />
-                          <Label className="dark:text-white">Make Public</Label>
-                        </div>
-                      </div>
-                      <Button onClick={handleUpdatePost} className="w-full">
-                        Update Post
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        </div>
+          {/* Content Management Tab */}
+          <TabsContent value="content" className="space-y-6">
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
+              <CardHeader>
+                <CardTitle className="dark:text-white">Content Management</CardTitle>
+                <CardDescription className="dark:text-gray-300">Create and manage posts, announcements, and press releases</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {/* Create New Post */}
+                <Card className="mb-6 dark:bg-gray-700 dark:border-gray-600">
+                  <CardHeader>
+                    <CardTitle className="text-lg dark:text-white">Create New Post</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="title" className="dark:text-white">Title</Label>
+                      <Input
+                        id="title"
+                        value={newPost.title}
+                        onChange={(e) => setNewPost(prev => ({ ...prev, title: e.target.value }))}
+                        className="dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="content" className="dark:text-white">Content</Label>
+                      <Textarea
+                        id="content"
+                        value={newPost.content}
+                        onChange={(e) => setNewPost(prev => ({ ...prev, content: e.target.value }))}
+                        rows={4}
+                        className="dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="type" className="dark:text-white">Type</Label>
+                        <select
+                          id="type"
+                          value={newPost.type}
+                          onChange={(e) => setNewPost(prev => ({ ...prev, type: e.target.value as Post['type'] }))}
+                          className="w-full p-2 border rounded-md dark:bg-gray-600 dark:border-gray-500 dark:text-white"
+                        >
+                          <option value="announcement">Announcement</option>
+                          <option value="press_release">Press Release</option>
+                          <option value="company_info">Company Info</option>
+                        </select>
+                      </div>
+                      <div className="flex items-center space-x-2 pt-6">
+                        <Switch
+                          id="isPublic"
+                          checked={newPost.isPublic}
+                          onCheckedChange={(checked) => setNewPost(prev => ({ ...prev, isPublic: checked }))}
+                        />
+                        <Label htmlFor="isPublic" className="dark:text-white">Make Public</Label>
+                      </div>
+                    </div>
+                    <Button onClick={handleCreatePost} className="w-full">
+                      Create Post
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Posts List */}
+                <div className="space-y-4">
+                  {posts.map((post) => (
+                    <Card key={post.id} className="dark:bg-gray-700 dark:border-gray-600">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-semibold dark:text-white">{post.title}</h3>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="secondary">
+                                {post.type.replace('_', ' ').toUpperCase()}
+                              </Badge>
+                              {post.isPublic && <Badge variant="outline">Public</Badge>}
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" onClick={() => handleEditPost(post)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleDeletePost(post.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                          {post.content.length > 150 ? `${post.content.substring(0, 150)}...` : post.content}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                          Created: {new Date(post.createdAt).toLocaleString()}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Edit Post Modal */}
+                {editingPost && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <Card className="w-full max-w-2xl max-h-[80vh] overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
+                      <CardHeader>
+                        <div className="flex justify-between items-center">
+                          <CardTitle className="dark:text-white">Edit Post</CardTitle>
+                          <Button size="sm" variant="ghost" onClick={() => setEditingPost(null)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="dark:text-white">Title</Label>
+                          <Input
+                            value={editingPost.title}
+                            onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
+                            className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          />
+                        </div>
+                        <div>
+                          <Label className="dark:text-white">Content</Label>
+                          <Textarea
+                            value={editingPost.content}
+                            onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
+                            rows={6}
+                            className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label className="dark:text-white">Type</Label>
+                            <select
+                              value={editingPost.type}
+                              onChange={(e) => setEditingPost({ ...editingPost, type: e.target.value as Post['type'] })}
+                              className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            >
+                              <option value="announcement">Announcement</option>
+                              <option value="press_release">Press Release</option>
+                              <option value="company_info">Company Info</option>
+                            </select>
+                          </div>
+                          <div className="flex items-center space-x-2 pt-6">
+                            <Switch
+                              checked={editingPost.isPublic}
+                              onCheckedChange={(checked) => setEditingPost({ ...editingPost, isPublic: checked })}
+                            />
+                            <Label className="dark:text-white">Make Public</Label>
+                          </div>
+                        </div>
+                        <Button onClick={handleUpdatePost} className="w-full">
+                          Update Post
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings" className="space-y-6">
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
+              <CardHeader>
+                <CardTitle className="dark:text-white">Video Background Settings</CardTitle>
+                <CardDescription className="dark:text-gray-300">Configure hero section video background (supports YouTube URLs)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="videoEnabled"
+                    checked={videoSettings.enabled}
+                    onCheckedChange={(enabled) => setVideoSettings(prev => ({ ...prev, enabled }))}
+                  />
+                  <Label htmlFor="videoEnabled" className="dark:text-white">Enable Video Background</Label>
+                </div>
+                <div>
+                  <Label htmlFor="videoUrl" className="dark:text-white">Video URL (YouTube or direct link)</Label>
+                  <Input
+                    id="videoUrl"
+                    value={videoSettings.videoUrl}
+                    onChange={(e) => setVideoSettings(prev => ({ ...prev, videoUrl: e.target.value }))}
+                    placeholder="https://www.youtube.com/watch?v=... or direct video URL"
+                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+                <Button onClick={saveVideoSettings} className="w-full">
+                  Save Video Settings
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
       <Footer />
