@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trash2, Edit, Plus, Upload, X, Settings, DollarSign, Image, FileText, Building } from 'lucide-react';
+import { Trash2, Edit, Plus, Upload, X, Settings, DollarSign, Image, FileText } from 'lucide-react';
 import { usePosts } from '@/hooks/usePosts';
 import { Post } from '@/types';
 
@@ -153,6 +153,13 @@ const AdminDashboard = () => {
     alert('Video background settings saved successfully!');
   };
 
+  const saveAllGeneralSettings = () => {
+    localStorage.setItem('companySettings', JSON.stringify(companySettings));
+    localStorage.setItem('videoBackground', videoSettings.videoUrl);
+    localStorage.setItem('videoBackgroundEnabled', videoSettings.enabled.toString());
+    alert('All settings saved successfully!');
+  };
+
   const savePricingPlans = () => {
     localStorage.setItem('pricingPlans', JSON.stringify(pricingPlans));
     alert('Pricing plans saved successfully!');
@@ -284,11 +291,11 @@ const AdminDashboard = () => {
       <div className="flex-1 container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8 dark:text-white">Admin Dashboard</h1>
         
-        <Tabs defaultValue="company" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="company" className="flex items-center gap-2">
-              <Building className="h-4 w-4" />
-              Company
+        <Tabs defaultValue="general" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="general" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              General Settings
             </TabsTrigger>
             <TabsTrigger value="pricing" className="flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
@@ -302,14 +309,10 @@ const AdminDashboard = () => {
               <FileText className="h-4 w-4" />
               Content
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Settings
-            </TabsTrigger>
           </TabsList>
 
-          {/* Company Settings Tab */}
-          <TabsContent value="company" className="space-y-6">
+          {/* General Settings Tab (Company + Settings combined) */}
+          <TabsContent value="general" className="space-y-6">
             <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
                 <CardTitle className="dark:text-white">Company Information</CardTitle>
@@ -365,11 +368,39 @@ const AdminDashboard = () => {
                     Upload a logo that will be displayed in the navigation bar
                   </p>
                 </div>
-                <Button onClick={saveCompanySettings} className="w-full">
-                  Save Company Settings
-                </Button>
               </CardContent>
             </Card>
+
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
+              <CardHeader>
+                <CardTitle className="dark:text-white">Video Background Settings</CardTitle>
+                <CardDescription className="dark:text-gray-300">Configure hero section video background (supports YouTube URLs)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="videoEnabled"
+                    checked={videoSettings.enabled}
+                    onCheckedChange={(enabled) => setVideoSettings(prev => ({ ...prev, enabled }))}
+                  />
+                  <Label htmlFor="videoEnabled" className="dark:text-white">Enable Video Background</Label>
+                </div>
+                <div>
+                  <Label htmlFor="videoUrl" className="dark:text-white">Video URL (YouTube or direct link)</Label>
+                  <Input
+                    id="videoUrl"
+                    value={videoSettings.videoUrl}
+                    onChange={(e) => setVideoSettings(prev => ({ ...prev, videoUrl: e.target.value }))}
+                    placeholder="https://www.youtube.com/watch?v=... or direct video URL"
+                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Button onClick={saveAllGeneralSettings} className="w-full">
+              Save All Settings
+            </Button>
           </TabsContent>
 
           {/* Pricing Plans Tab */}
@@ -788,39 +819,6 @@ const AdminDashboard = () => {
                     </Card>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-6">
-            <Card className="dark:bg-gray-800 dark:border-gray-700">
-              <CardHeader>
-                <CardTitle className="dark:text-white">Video Background Settings</CardTitle>
-                <CardDescription className="dark:text-gray-300">Configure hero section video background (supports YouTube URLs)</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="videoEnabled"
-                    checked={videoSettings.enabled}
-                    onCheckedChange={(enabled) => setVideoSettings(prev => ({ ...prev, enabled }))}
-                  />
-                  <Label htmlFor="videoEnabled" className="dark:text-white">Enable Video Background</Label>
-                </div>
-                <div>
-                  <Label htmlFor="videoUrl" className="dark:text-white">Video URL (YouTube or direct link)</Label>
-                  <Input
-                    id="videoUrl"
-                    value={videoSettings.videoUrl}
-                    onChange={(e) => setVideoSettings(prev => ({ ...prev, videoUrl: e.target.value }))}
-                    placeholder="https://www.youtube.com/watch?v=... or direct video URL"
-                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  />
-                </div>
-                <Button onClick={saveVideoSettings} className="w-full">
-                  Save Video Settings
-                </Button>
               </CardContent>
             </Card>
           </TabsContent>
