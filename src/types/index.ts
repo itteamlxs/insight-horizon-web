@@ -6,6 +6,14 @@ export interface User {
   createdAt: string;
 }
 
+export interface AdminUser {
+  id: string;
+  email: string;
+  role: 'admin';
+  createdAt: string;
+  lastLogin?: string;
+}
+
 export interface Post {
   id: string;
   title: string;

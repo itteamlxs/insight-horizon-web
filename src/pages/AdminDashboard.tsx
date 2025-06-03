@@ -3,12 +3,13 @@ import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings, DollarSign, Image, FileText, Shield } from 'lucide-react';
+import { Settings, DollarSign, Image, FileText, Shield, Users } from 'lucide-react';
 import GeneralSettingsTab from '@/components/admin/GeneralSettingsTab';
 import PricingTab from '@/components/admin/PricingTab';
 import GalleryTab from '@/components/admin/GalleryTab';
 import ContentTab from '@/components/admin/ContentTab';
 import TransparencyTab from '@/components/admin/TransparencyTab';
+import AdminUsersTab from '@/components/admin/AdminUsersTab';
 
 const AdminDashboard = () => {
   // Company Settings with logo
@@ -103,10 +104,14 @@ const AdminDashboard = () => {
         <h1 className="text-3xl font-bold mb-8 dark:text-white">Admin Dashboard</h1>
         
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="general" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               General
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Admin Users
             </TabsTrigger>
             <TabsTrigger value="pricing" className="flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
@@ -134,6 +139,10 @@ const AdminDashboard = () => {
               setVideoSettings={setVideoSettings}
               onSaveAll={saveAllGeneralSettings}
             />
+          </TabsContent>
+
+          <TabsContent value="users">
+            <AdminUsersTab />
           </TabsContent>
 
           <TabsContent value="pricing">
