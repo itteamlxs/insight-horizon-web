@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
 import { Post } from '@/types';
+import { sanitizeHtml } from '@/utils/security';
 
 interface ArticleModalProps {
   isOpen: boolean;
@@ -28,6 +29,11 @@ const ArticleModal = ({ isOpen, onClose, article }: ArticleModalProps) => {
     }
   };
 
+  // Sanitize content before rendering
+  const sanitizedTitle = sanitizeHtml(article.title);
+  const sanitizedContent = sanitizeHtml(article.content);
+  const sanitizedType = sanitizeHtml(article.type.replace('_', ' ').toUpperCase());
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <Card className="w-full max-w-4xl max-h-[90vh] overflow-hidden dark:bg-gray-800 dark:border-gray-700">
@@ -35,13 +41,13 @@ const ArticleModal = ({ isOpen, onClose, article }: ArticleModalProps) => {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <Badge className={getTypeColor(article.type)}>
-                {article.type.replace('_', ' ').toUpperCase()}
+                {sanitizedType}
               </Badge>
               <span className="text-sm text-gray-500 dark:text-gray-400">
                 {new Date(article.createdAt).toLocaleDateString()}
               </span>
             </div>
-            <CardTitle className="text-2xl dark:text-white">{article.title}</CardTitle>
+            <CardTitle className="text-2xl dark:text-white">{sanitizedTitle}</CardTitle>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="h-4 w-4" />
@@ -50,7 +56,7 @@ const ArticleModal = ({ isOpen, onClose, article }: ArticleModalProps) => {
         <CardContent className="overflow-y-auto max-h-[calc(90vh-200px)]">
           <div className="prose prose-gray dark:prose-invert max-w-none">
             <div className="whitespace-pre-wrap dark:text-gray-300">
-              {article.content}
+              {sanitizedContent}
             </div>
           </div>
         </CardContent>

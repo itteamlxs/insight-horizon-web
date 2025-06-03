@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { SecureInput } from '@/components/ui/secure-input';
 import { useAuth } from '@/contexts/AuthContext';
 import { Shield, Eye, EyeOff } from 'lucide-react';
 
@@ -13,11 +13,22 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [validationState, setValidationState] = useState({
+    email: true,
+    password: true
+  });
+  
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form before submission
+    if (!validationState.email || !validationState.password || !email || !password) {
+      return;
+    }
+    
     setIsLoading(true);
     
     const success = await login(email, password);
@@ -26,6 +37,17 @@ const Login = () => {
     }
     
     setIsLoading(false);
+  };
+
+  const handleEmailChange = (value: string, isValid: boolean) => {
+    setEmail(value);
+    setValidationState(prev => ({ ...prev, email: isValid }));
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+    setValidationState(prev => ({ ...prev, password: value.length >= 8 }));
   };
 
   return (
@@ -44,28 +66,31 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input
+              <SecureInput
                 id="email"
                 type="email"
                 placeholder="admin@techcorp.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                validation="email"
+                onSecureChange={handleEmailChange}
                 required
                 className="w-full"
+                autoComplete="email"
               />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Input
+                <SecureInput
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Enter your password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
                   required
                   className="w-full pr-10"
+                  autoComplete="current-password"
+                  minLength={8}
                 />
                 <button
                   type="button"
@@ -75,12 +100,15 @@ const Login = () => {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              {!validationState.password && password && (
+                <p className="text-sm text-red-500">Password must be at least 8 characters</p>
+              )}
             </div>
 
             <Button 
               type="submit" 
               className="w-full bg-blue-600 hover:bg-blue-700"
-              disabled={isLoading}
+              disabled={isLoading || !validationState.email || !validationState.password || !email || !password}
             >
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>

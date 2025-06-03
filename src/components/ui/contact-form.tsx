@@ -2,10 +2,11 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { SecureInput } from '@/components/ui/secure-input';
+import { SecureTextarea } from '@/components/ui/secure-textarea';
 import { X } from 'lucide-react';
+import { sanitizeHtml } from '@/utils/security';
 
 interface ContactFormProps {
   isOpen: boolean;
@@ -20,21 +21,41 @@ const ContactForm = ({ isOpen, onClose, selectedPlan }: ContactFormProps) => {
     phone: '',
     message: ''
   });
+  
+  const [validationState, setValidationState] = React.useState({
+    fullName: true,
+    email: true,
+    phone: true,
+    message: true
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Contact form submitted:', { ...formData, selectedPlan });
-    // Here you would typically send the data to your backend
+    
+    // Final validation before submission
+    const isFormValid = Object.values(validationState).every(valid => valid) &&
+                       Object.values(formData).every(value => value.trim() !== '');
+    
+    if (!isFormValid) {
+      alert('Please fill in all fields correctly');
+      return;
+    }
+    
+    console.log('Contact form submitted:', { 
+      ...formData, 
+      selectedPlan: selectedPlan ? sanitizeHtml(selectedPlan) : undefined 
+    });
+    
+    // Here you would typically send the data to your backend with CSRF protection
     alert('Thank you for your interest! We will contact you soon.');
     onClose();
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
+  const handleSecureChange = (field: keyof typeof formData) => 
+    (value: string, isValid: boolean) => {
+      setFormData(prev => ({ ...prev, [field]: value }));
+      setValidationState(prev => ({ ...prev, [field]: isValid }));
+    };
 
   if (!isOpen) return null;
 
@@ -45,7 +66,7 @@ const ContactForm = ({ isOpen, onClose, selectedPlan }: ContactFormProps) => {
           <div>
             <CardTitle className="dark:text-white">Contact Us</CardTitle>
             <CardDescription className="dark:text-gray-300">
-              {selectedPlan && `Selected Plan: ${selectedPlan}`}
+              {selectedPlan && `Selected Plan: ${sanitizeHtml(selectedPlan)}`}
             </CardDescription>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
@@ -56,46 +77,47 @@ const ContactForm = ({ isOpen, onClose, selectedPlan }: ContactFormProps) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="fullName" className="dark:text-white">Full Name</Label>
-              <Input
+              <SecureInput
                 id="fullName"
                 name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
+                validation="text"
+                onSecureChange={handleSecureChange('fullName')}
                 required
                 className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                maxLength={100}
               />
             </div>
             <div>
               <Label htmlFor="email" className="dark:text-white">Email</Label>
-              <Input
+              <SecureInput
                 id="email"
                 name="email"
                 type="email"
-                value={formData.email}
-                onChange={handleChange}
+                validation="email"
+                onSecureChange={handleSecureChange('email')}
                 required
                 className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
             </div>
             <div>
               <Label htmlFor="phone" className="dark:text-white">Phone Number</Label>
-              <Input
+              <SecureInput
                 id="phone"
                 name="phone"
                 type="tel"
-                value={formData.phone}
-                onChange={handleChange}
+                validation="phone"
+                onSecureChange={handleSecureChange('phone')}
                 required
                 className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
             </div>
             <div>
               <Label htmlFor="message" className="dark:text-white">Message</Label>
-              <Textarea
+              <SecureTextarea
                 id="message"
                 name="message"
-                value={formData.message}
-                onChange={handleChange}
+                onSecureChange={handleSecureChange('message')}
+                maxLength={2000}
                 rows={4}
                 className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 placeholder="Tell us about your requirements..."

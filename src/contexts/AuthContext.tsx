@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AuthContextType, User } from '@/types';
 import { toast } from '@/hooks/use-toast';
+import { secureStorage, sanitizeInput, isValidEmail } from '@/utils/security';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -22,17 +23,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const checkAuthStatus = () => {
-    const token = localStorage.getItem('authToken');
-    const userData = localStorage.getItem('userData');
+    // Use secure storage instead of direct localStorage access
+    const token = secureStorage.getItem('authToken');
+    const userData = secureStorage.getItem('userData');
     
     if (token && userData) {
       try {
         const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
+        // Validate user data structure
+        if (parsedUser && parsedUser.id && parsedUser.email && parsedUser.role) {
+          setUser(parsedUser);
+        } else {
+          // Invalid user data, clear storage
+          secureStorage.removeItem('authToken');
+          secureStorage.removeItem('userData');
+        }
       } catch (error) {
         console.error('Error parsing user data:', error);
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userData');
+        secureStorage.removeItem('authToken');
+        secureStorage.removeItem('userData');
       }
     }
     setIsLoading(false);
@@ -40,8 +49,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
+      // Sanitize and validate inputs
+      const sanitizedEmail = sanitizeInput(email.toLowerCase());
+      
+      if (!isValidEmail(sanitizedEmail)) {
+        toast({
+          title: "Login Failed",
+          description: "Invalid email format",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      if (!password || password.length < 8) {
+        toast({
+          title: "Login Failed",
+          description: "Password must be at least 8 characters",
+          variant: "destructive",
+        });
+        return false;
+      }
+
       // Simulate API call with hardcoded admin credentials
-      if (email === 'admin@techcorp.com' && password === 'SecureAdmin123!') {
+      if (sanitizedEmail === 'admin@techcorp.com' && password === 'SecureAdmin123!') {
         const userData: User = {
           id: '1',
           email: 'admin@techcorp.com',
@@ -49,10 +79,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdAt: new Date().toISOString(),
         };
         
-        const token = 'secure-jwt-token-' + Date.now();
+        // Generate a more secure token (in production, this would come from backend)
+        const token = 'secure-jwt-token-' + Date.now() + '-' + Math.random().toString(36);
         
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('userData', JSON.stringify(userData));
+        // Use secure storage
+        secureStorage.setItem('authToken', token);
+        secureStorage.setItem('userData', JSON.stringify(userData));
         setUser(userData);
         
         toast({
@@ -62,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         return true;
       } else {
+        // Add rate limiting in production
         toast({
           title: "Login Failed",
           description: "Invalid email or password",
@@ -81,8 +114,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
+    secureStorage.removeItem('authToken');
+    secureStorage.removeItem('userData');
     setUser(null);
     toast({
       title: "Logged Out",
