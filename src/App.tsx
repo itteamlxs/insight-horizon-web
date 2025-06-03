@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Home from "./pages/Home";
+import About from "./pages/About";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import Transparency from "./pages/Transparency";
@@ -26,12 +27,12 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
               <Route path="/login" element={<Login />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/transparency" element={<Transparency />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/gallery" element={<Gallery />} />
-              <Route path="/about" element={<Home />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
