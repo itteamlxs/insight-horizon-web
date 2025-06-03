@@ -3,11 +3,14 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { LogOut } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+import LanguageSelector from '@/components/LanguageSelector';
 
 const Header = () => {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [companyName, setCompanyName] = React.useState<string>('TechCorp Solutions');
   const [companyLogo, setCompanyLogo] = React.useState<string>('');
@@ -45,27 +48,28 @@ const Header = () => {
           
           <nav className="hidden md:flex items-center space-x-6">
             <Link to="/" className="hover:text-blue-400 transition-colors duration-300">
-              Home
+              {t('header.home')}
             </Link>
             <Link to="/about" className="hover:text-blue-400 transition-colors duration-300">
-              About
+              {t('header.about')}
             </Link>
             <Link to="/transparency" className="hover:text-blue-400 transition-colors duration-300">
-              Transparency
+              {t('header.transparency')}
             </Link>
             {user && (
               <Link to="/admin" className="hover:text-blue-400 transition-colors duration-300">
-                Admin Dashboard
+                {t('header.admin')}
               </Link>
             )}
           </nav>
 
           <div className="flex items-center space-x-4">
+            <LanguageSelector />
             <ThemeToggle />
             {user ? (
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-300">
-                  Welcome, {user.email}
+                  {t('header.welcome')}, {user.email}
                 </span>
                 <Button
                   variant="outline"
@@ -74,7 +78,7 @@ const Header = () => {
                   className="border-2 border-white/50 text-white hover:bg-white/20 hover:border-white/70 backdrop-blur-sm transition-all duration-300"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
-                  Logout
+                  {t('header.logout')}
                 </Button>
               </div>
             ) : (
@@ -84,7 +88,7 @@ const Header = () => {
                   size="sm" 
                   className="border-2 border-white/50 text-white hover:bg-white/20 hover:border-white/70 backdrop-blur-sm transition-all duration-300"
                 >
-                  Admin Login
+                  {t('header.adminLogin')}
                 </Button>
               </Link>
             )}
